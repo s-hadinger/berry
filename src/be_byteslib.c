@@ -186,10 +186,7 @@ static int m_init(bvm *vm)
     int argc = be_top(vm);
     int size = BYTES_DEFAULT_SIZE;
     const char * hex_in = NULL;
-
-    if (argc > 1 && be_isint(vm, 2)) {
-        size = be_toint(vm, 2);
-    } else if (argc > 1 && be_isstring(vm, 2)) {
+    if (argc > 1 && be_isstring(vm, 2)) {
         hex_in = be_tostring(vm, 2);
         if (hex_in) {
             size = strlen(hex_in) / 2 + BYTES_HEADROOM;        // allocate headroom
@@ -202,14 +199,17 @@ static int m_init(bvm *vm)
     
     if (hex_in) {
         buf_add_hex(buf, hex_in, strlen(hex_in));
+    } else if (argc > 1 && be_isint(vm, 2)) {
+        buf_add1(buf, be_toint(vm, 2));
     }
     be_newcomobj(vm, buf, &free_bytes_buf);
     be_setmember(vm, 1, ".p");
     be_return_nil(vm);
 }
 
+/* grow or shrink to the exact value */
 /* stack item 1 must contain the instance */
-static buf_impl * bytes_resize(bvm *vm, buf_impl * buf, size_t new_size) {
+static buf_impl * _bytes_resize(bvm *vm, buf_impl * buf, size_t new_size) {
     buf_impl * new_buf = bytes_alloc(new_size);
     if (!new_buf) {
         be_throw(vm, BE_MALLOC_FAIL);
@@ -224,6 +224,14 @@ static buf_impl * bytes_resize(bvm *vm, buf_impl * buf, size_t new_size) {
     return new_buf;
 }
 
+/* grow if needed but don't shrink */
+/* if grow, then add some headroom */
+/* stack item 1 must contain the instance */
+static buf_impl * bytes_resize(bvm *vm, buf_impl * buf, size_t new_size) {
+    if (buf->size >= new_size) { return buf; }  /* no resize needed */
+    return _bytes_resize(vm, buf, new_size + BYTES_HEADROOM);
+}
+
 static buf_impl * bytes_check_data(bvm *vm, size_t add_size) {
     be_getmember(vm, 1, ".p");
     buf_impl * buf = be_tocomptr(vm, -1);
@@ -231,20 +239,7 @@ static buf_impl * bytes_check_data(bvm *vm, size_t add_size) {
     /* check if the `size` is big enough */
     if (buf->len + add_size > buf->size) {
         /* it does not fit so we need to realocate the buffer */
-        size_t new_size = buf->len + add_size + BYTES_HEADROOM;
-        // buf_impl * new_buf = bytes_alloc(new_size);
-        // if (!new_buf) {
-        //     be_throw(vm, BE_MALLOC_FAIL);
-        // }
-        // memmove(buf_get_buf(new_buf), buf_get_buf(buf), buf->len);
-        // new_buf->len = buf->len;
-        // /* replace the .p attribute */
-        // be_newcomobj(vm, new_buf, &free_bytes_buf);
-        // be_setmember(vm, 1, ".p");
-        // be_pop(vm, 1); /* remove comobj from stack */
-        // /* the old buffer will be garbage collected later */
-        // buf = new_buf;
-        buf = bytes_resize(vm, buf, new_size);
+        buf = bytes_resize(vm, buf, buf->len + add_size);
     }
     return buf;
 }
@@ -385,7 +380,7 @@ static int m_resize(bvm *vm)
 static int m_merge(bvm *vm)
 {
     int argc = be_top(vm);
-    buf_impl * buf1 = bytes_check_data(vm, 0); /* resize if needed */
+    buf_impl * buf1 = bytes_check_data(vm, 0); /* no resize yet */
     if (argc >= 2 && be_isinstance(vm, 2)) {
         be_getglobal(vm, "bytes"); /* get the bytes class */ /* TODO eventually replace with be_getbuiltin */
         if (be_isderived(vm, 2)) {
@@ -407,6 +402,33 @@ static int m_merge(bvm *vm)
         }
     }
     be_raise(vm, "type_error", "operand must be bytes");
+    be_return_nil(vm); /* return self */
+}
+
+/* accept bytes or int as operand */
+static int m_connect(bvm *vm)
+{
+    int argc = be_top(vm);
+    buf_impl * buf1 = bytes_check_data(vm, 0); /* don't resize yet */
+    if (argc >= 2 && (be_isinstance(vm, 2) || be_isint(vm, 2))) {
+        if (be_isint(vm, 2)) {
+            buf1 = bytes_resize(vm, buf1, buf1->len + 1); /* resize */
+            buf_add1(buf1, be_toint(vm, 2));
+            be_pop(vm, 1);  /* remove operand */
+            be_return(vm); /* return self */
+        } else {
+            be_getglobal(vm, "bytes"); /* get the bytes class */ /* TODO eventually replace with be_getbuiltin */
+            if (be_isderived(vm, 2)) {
+                be_getmember(vm, 2, ".p");
+                buf_impl * buf2 = be_tocomptr(vm, -1);
+                buf1 = bytes_resize(vm, buf1, buf1->len + buf2->len); /* resize buf1 for total size */
+                buf_add_buf(buf1, buf2);
+                be_pop(vm, 3); /* remove class, member, and last operand */
+                be_return(vm); /* return self */
+            }
+        }
+    }
+    be_raise(vm, "type_error", "operand must be bytes or int");
     be_return_nil(vm); /* return self */
 }
 
@@ -452,6 +474,7 @@ void be_load_byteslib(bvm *vm)
         { "size", m_size },
         { "resize", m_resize },
         { "+", m_merge },
+        { "..", m_connect },
         { "==", m_equal },
         { "!=", m_nequal },
         { NULL, NULL }
@@ -469,6 +492,7 @@ class be_class_bytes (scope: global, name: bytes) {
     size, func(m_size)
     resize, func(m_resize)
     +, func(m_merge)
+    .., func(m_connect)
     ==, func(m_equal)
     !=, func(m_nequal)
 }
