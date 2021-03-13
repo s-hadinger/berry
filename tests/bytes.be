@@ -136,3 +136,11 @@ b.resize(20)
 assert(str(b) =='bytes("0000000000000000000000000000000000000000")')
 b2=b.copy()
 assert(str(b2) =='bytes("0000000000000000000000000000000000000000")')
+
+#- asstring -#
+b=bytes()
+assert(b.asstring() == '')
+b=bytes("334455")
+assert(b.asstring() == '3DU')
+b=bytes("33456502")
+assert(b.asstring() == '3Ee\x02')

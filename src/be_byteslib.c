@@ -277,9 +277,7 @@ static size_t tohex(char * out, size_t outsz, const uint8_t * in, size_t insz) {
   pout[0] = 0; /* terminating Nul char */
   return pout - out;
 }
-/*
- * Copy the buffer into a string without any changes
- */
+
 static int m_tostring(bvm *vm)
 {
     buf_impl * buf = bytes_check_data(vm, 0);
@@ -294,6 +292,19 @@ static int m_tostring(bvm *vm)
     be_pushnstring(vm, hex_out, l); /* make escape string from buffer */
     be_remove(vm, -2); /* remove buffer */
     be_return(vm);
+}
+
+/*
+ * Copy the buffer into a string without any changes
+ */
+static int m_asstring(bvm *vm)
+{
+    buf_impl * buf = bytes_check_data(vm, 0);
+    be_pushnstring(vm, (const char*) buf_get_buf(buf), buf->len);
+    be_return(vm);
+}
+static int m_fromstring(bvm *vm)
+{
 }
 
 /*
@@ -599,6 +610,8 @@ void be_load_byteslib(bvm *vm)
         { ".p", NULL },
         { "init", m_init },
         { "tostring", m_tostring },
+        { "asstring", m_asstring },
+        { "fromstring", m_fromstring },
         { "add", m_add },
         { "get", m_get },
         { "item", m_item },
@@ -621,6 +634,8 @@ class be_class_bytes (scope: global, name: bytes) {
     .p, var
     init, func(m_init)
     tostring, func(m_tostring)
+    asstring, func(m_asstring)
+    fromstring, func(m_fromstring)
     add, func(m_add)
     get, func(m_get)
     item, func(m_item)
