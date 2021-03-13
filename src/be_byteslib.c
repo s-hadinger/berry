@@ -391,25 +391,6 @@ static int m_item(bvm *vm)
     }
     be_raise(vm, "index_error", "bytes index out of range");
     be_return_nil(vm);
-
-    // if (argc >=2 && be_isinstance(vm, 2)) {
-
-    // be_getmember(vm, 1, ".p");
-    // list_check_data(vm, 2);
-    // if (be_isint(vm, 2)) {
-    //     be_pushvalue(vm, 2);
-    //     list_getindex(vm, -2);
-    //     be_return(vm);
-    // }
-    // if (be_isinstance(vm, 2)) {
-    //     const char *cname = be_classname(vm, 2);
-    //     if (!strcmp(cname, "range")) {
-    //         return item_range(vm);
-    //     }
-    //     if (!strcmp(cname, "list")) {
-    //         return item_list(vm);
-    //     }
-    // }
 }
 
 static int m_size(bvm *vm)
