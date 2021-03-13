@@ -186,7 +186,12 @@ static int m_init(bvm *vm)
     int argc = be_top(vm);
     int size = BYTES_DEFAULT_SIZE;
     const char * hex_in = NULL;
-    if (argc > 1 && be_isstring(vm, 2)) {
+    if (argc > 1 && be_isint(vm, 2)) {
+        int new_size = be_toint(vm, 2) + BYTES_HEADROOM;
+        if (new_size > size) {
+            size = new_size;
+        }
+    } else if (argc > 1 && be_isstring(vm, 2)) {
         hex_in = be_tostring(vm, 2);
         if (hex_in) {
             size = strlen(hex_in) / 2 + BYTES_HEADROOM;        // allocate headroom
@@ -199,9 +204,7 @@ static int m_init(bvm *vm)
     
     if (hex_in) {
         buf_add_hex(buf, hex_in, strlen(hex_in));
-    } else if (argc > 1 && be_isint(vm, 2)) {
-        buf_add1(buf, be_toint(vm, 2));
-    }
+    } 
     be_newcomobj(vm, buf, &free_bytes_buf);
     be_setmember(vm, 1, ".p");
     be_return_nil(vm);
@@ -349,6 +352,66 @@ static int m_get(bvm *vm)
     be_return_nil(vm);
 }
 
+static int m_item(bvm *vm)
+{
+    int argc = be_top(vm);
+    buf_impl * buf = bytes_check_data(vm, 0); /* we reserve 4 bytes anyways */
+    if (argc >=2 && be_isint(vm, 2)) {
+        int index = be_toint(vm,2);
+        if (index >= 0 && index < buf->len) {
+            be_pushint(vm, buf_get1(buf, index));
+            be_return(vm);
+        }
+    }
+    if (argc >= 2 && be_isinstance(vm, 2)) {
+        const char *cname = be_classname(vm, 2);
+        if (!strcmp(cname, "range")) {
+            bint lower, upper;
+            bint size = buf->len;
+            /* get index range */
+            be_getmember(vm, 2, "__lower__");
+            lower = be_toint(vm, -1);
+            be_pop(vm, 1);
+            be_getmember(vm, 2, "__upper__");
+            upper = be_toint(vm, -1);
+            be_pop(vm, 1);
+            /* protection scope */
+            upper = upper < size ? upper : size - 1;
+            lower = lower < 0 ? 0 : lower;
+            /* construction result list instance */
+            be_pushint(vm, upper > lower ? upper-lower : 0);
+            be_newobject(vm, "bytes"); /* result list */
+            buf_impl * buf2 = be_tocomptr(vm, -1);
+            be_pop(vm, 1);  /* remove .p and leave bytes instance */
+            for (; lower <= upper; ++lower) {
+                buf_add1(buf2, buf->buf[lower]);
+            }
+            be_return(vm);    
+        }
+    }
+    be_raise(vm, "index_error", "bytes index out of range");
+    be_return_nil(vm);
+
+    // if (argc >=2 && be_isinstance(vm, 2)) {
+
+    // be_getmember(vm, 1, ".p");
+    // list_check_data(vm, 2);
+    // if (be_isint(vm, 2)) {
+    //     be_pushvalue(vm, 2);
+    //     list_getindex(vm, -2);
+    //     be_return(vm);
+    // }
+    // if (be_isinstance(vm, 2)) {
+    //     const char *cname = be_classname(vm, 2);
+    //     if (!strcmp(cname, "range")) {
+    //         return item_range(vm);
+    //     }
+    //     if (!strcmp(cname, "list")) {
+    //         return item_list(vm);
+    //     }
+    // }
+}
+
 static int m_size(bvm *vm)
 {
     buf_impl * buf = bytes_check_data(vm, 0);
@@ -471,6 +534,7 @@ void be_load_byteslib(bvm *vm)
         { "tostring", m_tostring },
         { "add", m_add },
         { "get", m_get },
+        { "item", m_item },
         { "size", m_size },
         { "resize", m_resize },
         { "+", m_merge },
@@ -489,6 +553,7 @@ class be_class_bytes (scope: global, name: bytes) {
     tostring, func(m_tostring)
     add, func(m_add)
     get, func(m_get)
+    item, func(m_item)
     size, func(m_size)
     resize, func(m_resize)
     +, func(m_merge)
