@@ -570,6 +570,7 @@ BERRY_API void be_pushbytes(bvm *vm, const void * bytes, size_t len)
     if (len > buf->size) { len = buf->size; } /* double check if the buffer allocated was smaller */
     memmove((void*)buf_get_buf(buf), bytes, len);
     buf->len = len;
+    /* bytes instance is on top of stack */
 }
 
 BERRY_API const void *be_tobytes(bvm *vm, int rel_index, size_t *len)
