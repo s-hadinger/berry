@@ -456,6 +456,17 @@ static int m_merge(bvm *vm)
     be_return_nil(vm); /* return self */
 }
 
+static int m_copy(bvm *vm)
+{
+    buf_impl * buf1 = bytes_check_data(vm, 0); /* no resize */
+    be_pushint(vm, buf1->len);
+    be_newobject(vm, "bytes");
+    buf_impl * buf2 = be_tocomptr(vm, -1);
+    be_pop(vm, 1);
+    buf_add_buf(buf2, buf1);
+    be_return(vm); /* return self */
+}
+
 /* accept bytes or int as operand */
 static int m_connect(bvm *vm)
 {
@@ -526,6 +537,7 @@ void be_load_byteslib(bvm *vm)
         { "size", m_size },
         { "resize", m_resize },
         { "clear", m_clear },
+        { "copy", m_copy },
         { "+", m_merge },
         { "..", m_connect },
         { "==", m_equal },
@@ -546,6 +558,7 @@ class be_class_bytes (scope: global, name: bytes) {
     size, func(m_size)
     resize, func(m_resize)
     clear, func(m_clear)
+    copy, func(m_copy)
     +, func(m_merge)
     .., func(m_connect)
     ==, func(m_equal)
