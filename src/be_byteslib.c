@@ -559,12 +559,13 @@ BERRY_API void be_pushbytes(bvm *vm, const void * bytes, size_t len)
     buf->len = len;
 }
 
-BERRY_API const void *be_tobytes(bvm *vm, int index, size_t *len)
+BERRY_API const void *be_tobytes(bvm *vm, int rel_index, size_t *len)
 {
+    int index = be_absindex(vm, rel_index);
     if (be_isinstance(vm, index)) {
         be_getglobal(vm, "bytes"); /* get the bytes class */ /* TODO eventually replace with be_getbuiltin */
         if (be_isderived(vm, index)) {
-            be_getmember(vm, -2, ".p");
+            be_getmember(vm, index, ".p");
             buf_impl * buf = be_tocomptr(vm, -1);
             be_pop(vm, 2); /* class and .p */
             if (len) { *len = buf->len; }
