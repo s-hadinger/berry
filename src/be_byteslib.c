@@ -305,6 +305,20 @@ static int m_asstring(bvm *vm)
 }
 static int m_fromstring(bvm *vm)
 {
+    int argc = be_top(vm);
+    if (argc >= 2 && be_isstring(vm, 2)) {
+        const char *s = be_tostring(vm, 2);
+        size_t len = strlen(s);
+        buf_impl * buf = bytes_check_data(vm, 0);
+        buf = bytes_resize(vm, buf, len); /* resize if needed */
+        if (len > buf->size) { len = buf->size; } /* avoid overflow */
+        memmove(buf_get_buf(buf), s, len);
+        buf->len = len;
+        be_pop(vm, 1); /* remove arg to leave instance */
+        be_return(vm);
+    }
+    be_raise(vm, "type_error", "operand must be a string");
+    be_return_nil(vm);
 }
 
 /*
@@ -319,7 +333,7 @@ static int m_add(bvm *vm)
 {
     int argc = be_top(vm);
     buf_impl * buf = bytes_check_data(vm, 4); /* we reserve 4 bytes anyways */
-    if (argc >=2 && be_isint(vm, 2)) {
+    if (argc >= 2 && be_isint(vm, 2)) {
         int32_t v = be_toint(vm, 2);
         int vsize = 1;
         if (argc >= 3 && be_isint(vm, 3)) {
