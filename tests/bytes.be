@@ -8,6 +8,7 @@ b=bytes(1)
 assert(str(b) == 'bytes("")')
 b=bytes(-1)
 assert(str(b) == 'bytes("")')
+assert(b.size() == 0)
 
 b=bytes("a")
 assert(str(b) == 'bytes("")')
@@ -18,6 +19,7 @@ assert(str(b) == 'bytes("")')
 
 b=bytes("1122AAaaBBbb")
 assert(str(b) == 'bytes("1122AAAABBBB")')
+assert(b.size() == 6)
 b=bytes("112")
 assert(str(b) == 'bytes("11")')
 b=bytes("++")
@@ -119,3 +121,12 @@ assert(str(b2) =='bytes("112233")')
 b2.clear()
 assert(str(b) =='bytes("112233")')
 assert(str(b2) =='bytes("")')
+
+b=bytes("112233")
+assert(str(b) =='bytes("112233")')
+b[1]=0xAA
+assert(str(b) =='bytes("11AA33")')
+b[0]=0xBB
+assert(str(b) =='bytes("BBAA33")')
+b[2]=-1
+assert(str(b) =='bytes("BBAAFF")')

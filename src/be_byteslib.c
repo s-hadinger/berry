@@ -46,6 +46,11 @@ static void buf_set_len(buf_impl* buf, const size_t len) {
 }
 
 
+static void buf_set1(buf_impl* buf, const size_t offset, const uint8_t data) {
+    if (offset < buf->len) {
+        buf->buf[offset] = data;
+    }
+}
 static size_t buf_add1(buf_impl* buf, const uint8_t data) {           // append 8 bits value
     if (buf->len < buf->size) {       // do we have room for 1 byte
         buf->buf[buf->len++] = data;
@@ -352,6 +357,23 @@ static int m_get(bvm *vm)
     be_return_nil(vm);
 }
 
+
+static int m_setitem(bvm *vm)
+{
+    int argc = be_top(vm);
+    buf_impl * buf = bytes_check_data(vm, 0); /* we reserve 4 bytes anyways */
+    if (argc >=3 && be_isint(vm, 2) && be_isint(vm, 3)) {
+        int index = be_toint(vm, 2);
+        int val = be_toint(vm, 3);
+        if (index >= 0 && index < buf->len) {
+            buf_set1(buf, index, val);
+            be_return_nil(vm);
+        }
+    }
+    be_raise(vm, "index_error", "bytes index out of range or value non int");
+    be_return_nil(vm);
+}
+
 static int m_item(bvm *vm)
 {
     int argc = be_top(vm);
@@ -534,6 +556,7 @@ void be_load_byteslib(bvm *vm)
         { "add", m_add },
         { "get", m_get },
         { "item", m_item },
+        { "setitem", m_setitem },
         { "size", m_size },
         { "resize", m_resize },
         { "clear", m_clear },
@@ -555,6 +578,7 @@ class be_class_bytes (scope: global, name: bytes) {
     add, func(m_add)
     get, func(m_get)
     item, func(m_item)
+    setitem, func(m_setitem)
     size, func(m_size)
     resize, func(m_resize)
     clear, func(m_clear)
