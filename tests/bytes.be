@@ -130,3 +130,9 @@ b[0]=0xBB
 assert(str(b) =='bytes("BBAA33")')
 b[2]=-1
 assert(str(b) =='bytes("BBAAFF")')
+
+b=bytes()
+b.resize(20)
+assert(str(b) =='bytes("0000000000000000000000000000000000000000")')
+b2=b.copy()
+assert(str(b2) =='bytes("0000000000000000000000000000000000000000")')

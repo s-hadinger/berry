@@ -177,13 +177,26 @@ int free_bytes_buf(bvm* vm) {
     be_return_nil(vm);
 }
 
-buf_impl * bytes_alloc(int32_t size) {
+buf_impl * bytes_alloc(int32_t size)
+{
     if (size < 4) { size = 4; }
     if (size > BYTES_MAX_SIZE) { size = BYTES_MAX_SIZE; }
     buf_impl * next = (buf_impl*) be_os_malloc(size + BYTES_OVERHEAD);
     next->size = size;
     next->len = 0;
     return next;
+}
+
+/* allocate a new `bytes` object with pre-allocated size */
+static void bytes_new_object(bvm *vm, size_t size)
+{
+    be_getglobal(vm, "bytes"); /* eventually change with be_getbuiltin */
+    be_call(vm, 0); /* stack has only instance */
+    be_getmember(vm, -1, "init");
+    be_pushvalue(vm, -2);
+    be_pushint(vm, size); /* stack: instance, init func, instance, size */
+    be_call(vm, 2); /* stack: instance, ret, instance, size */
+    be_pop(vm, 3); /* remove ret, instance, size */
 }
 
 static int m_init(bvm *vm)
@@ -401,8 +414,8 @@ static int m_item(bvm *vm)
             upper = upper < size ? upper : size - 1;
             lower = lower < 0 ? 0 : lower;
             /* construction result list instance */
-            be_pushint(vm, upper > lower ? upper-lower : 0);
-            be_newobject(vm, "bytes"); /* result list */
+            bytes_new_object(vm, upper > lower ? upper-lower : 0);
+            be_getmember(vm, -1, ".p");
             buf_impl * buf2 = be_tocomptr(vm, -1);
             be_pop(vm, 1);  /* remove .p and leave bytes instance */
             for (; lower <= upper; ++lower) {
@@ -462,8 +475,8 @@ static int m_merge(bvm *vm)
             be_pop(vm, 4); /* remove class, member, and 2 operands */
 
             /* allocate new object */
-            be_pushint(vm, buf1->len + buf2->len);
-            be_newobject(vm, "bytes");
+            bytes_new_object(vm, buf1->len + buf2->len);
+            be_getmember(vm, -1, ".p");
             /* .p is on top of stack, then instance */
             buf_impl * buf3 = be_tocomptr(vm, -1);
             be_pop(vm, 1);
@@ -480,8 +493,8 @@ static int m_merge(bvm *vm)
 static int m_copy(bvm *vm)
 {
     buf_impl * buf1 = bytes_check_data(vm, 0); /* no resize */
-    be_pushint(vm, buf1->len);
-    be_newobject(vm, "bytes");
+    bytes_new_object(vm, buf1->len);
+    be_getmember(vm, -1, ".p");
     buf_impl * buf2 = be_tocomptr(vm, -1);
     be_pop(vm, 1);
     buf_add_buf(buf2, buf1);
@@ -550,8 +563,8 @@ static int m_nequal(bvm *vm)
  */
 BERRY_API void be_pushbytes(bvm *vm, const void * bytes, size_t len)
 {
-    be_pushint(vm, len); /* push the pre-reserved size */
-    be_newobject(vm, "bytes"); /* stack has instance and .p1 */
+    bytes_new_object(vm, len);
+    be_getmember(vm, -1, ".p");
     buf_impl * buf = be_tocomptr(vm, -1);
     be_pop(vm, 1); /* remove .p1 and leave instance */
     if (len > buf->size) { len = buf->size; } /* double check if the buffer allocated was smaller */
