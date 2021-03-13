@@ -457,10 +457,9 @@ static int m_merge(bvm *vm)
     if (argc >= 2 && be_isinstance(vm, 2)) {
         be_getglobal(vm, "bytes"); /* get the bytes class */ /* TODO eventually replace with be_getbuiltin */
         if (be_isderived(vm, 2)) {
-            be_pop(vm, 1);  /* remove class */
             be_getmember(vm, 2, ".p");
             buf_impl * buf2 = be_tocomptr(vm, -1);
-            be_pop(vm, 3); /* remove member, and 2 operands */
+            be_pop(vm, 4); /* remove class, member, and 2 operands */
 
             /* allocate new object */
             be_pushint(vm, buf1->len + buf2->len);
@@ -544,6 +543,38 @@ static int m_equal(bvm *vm)
 static int m_nequal(bvm *vm)
 {
     return bytes_equal(vm, bfalse);
+}
+
+/*
+ * External API
+ */
+BERRY_API void be_pushbytes(bvm *vm, const void * bytes, size_t len)
+{
+    be_pushint(vm, len); /* push the pre-reserved size */
+    be_newobject(vm, "bytes"); /* stack has instance and .p1 */
+    buf_impl * buf = be_tocomptr(vm, -1);
+    be_pop(vm, 1); /* remove .p1 and leave instance */
+    if (len > buf->size) { len = buf->size; } /* double check if the buffer allocated was smaller */
+    memmove((void*)buf_get_buf(buf), bytes, len);
+    buf->len = len;
+}
+
+BERRY_API const void *be_tobytes(bvm *vm, int index, size_t *len)
+{
+    if (be_isinstance(vm, index)) {
+        be_getglobal(vm, "bytes"); /* get the bytes class */ /* TODO eventually replace with be_getbuiltin */
+        if (be_isderived(vm, index)) {
+            be_getmember(vm, -2, ".p");
+            buf_impl * buf = be_tocomptr(vm, -1);
+            be_pop(vm, 2); /* class and .p */
+            if (len) { *len = buf->len; }
+            return (void*) buf_get_buf(buf);
+        } else {
+            be_pop(vm, 1);  /* remove class */
+        }
+    }
+    if (len) { *len = 0; }
+    return NULL;
 }
 
 #if !BE_USE_PRECOMPILED_OBJECT
