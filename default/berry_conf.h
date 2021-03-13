@@ -25,7 +25,7 @@
  * type when the value is 2.
  * Default: 2
  */
-#define BE_INTGER_TYPE                  2
+#define BE_INTGER_TYPE                  1           // use long int = uint32_t
 
 /* Macro: BE_USE_SINGLE_FLOAT
  * Select floating point precision.
@@ -34,14 +34,18 @@
  * numbers.
  * Default: 0
  **/
-#define BE_USE_SINGLE_FLOAT             0
+#define BE_USE_SINGLE_FLOAT             1           // use `float` not `double`
 
 /* Macro: BE_USE_PRECOMPILED_OBJECT
  * Use precompiled objects to avoid creating these objects at
  * runtime. Enable this macro can greatly optimize RAM usage.
  * Default: 1
- **/
-#define BE_USE_PRECOMPILED_OBJECT       1
+//  **/
+// #ifdef ESP8266
+// #define BE_USE_PRECOMPILED_OBJECT       0
+// #else
+#define BE_USE_PRECOMPILED_OBJECT       0           // will enable later when stabilized
+// #endif
 
 /* Macro: BE_DEBUG_RUNTIME_INFO
  * Set runtime error debugging information.
@@ -50,7 +54,7 @@
  * 2: the information use uint16_t type (save space).
  * Default: 1
  **/
-#define BE_DEBUG_RUNTIME_INFO           1
+#define BE_DEBUG_RUNTIME_INFO           0
 
 /* Macro: BE_DEBUG_VAR_INFO
  * Set variable debugging tracking information.
@@ -58,7 +62,13 @@
  * 1: enable variable debugging tracking information at runtime.
  * Default: 1
  **/
-#define BE_DEBUG_VAR_INFO               1
+#define BE_DEBUG_VAR_INFO               0
+
+/* Macro: BE_USE_OBSERVABILITY_HOOK
+ * Use the obshook function to report low-level actions.
+ * Default: 0
+ **/
+#define BE_USE_OBSERVABILITY_HOOK       1
 
 /* Macro: BE_USE_OBSERVABILITY_HOOK
  * Use the obshook function to report low-level actions.
@@ -70,7 +80,7 @@
  * Set the maximum total stack size.
  * Default: 20000
  **/
-#define BE_STACK_TOTAL_MAX              20000
+#define BE_STACK_TOTAL_MAX              4000
 
 /* Macro: BE_STACK_FREE_MIN
  * Set the minimum free count of the stack. The stack idles will
@@ -93,7 +103,7 @@
  * will not be used.
  * Default: 0
  **/
-#define BE_USE_FILE_SYSTEM              1
+#define BE_USE_FILE_SYSTEM              0
 
 /* Macro: BE_USE_SCRIPT_COMPILER
  * Enable compiler when BE_USE_SCRIPT_COMPILER is not 0, otherwise
@@ -121,7 +131,7 @@
  * otherwise disable the feature.
  * Default: 1
  **/
-#define BE_USE_SHARED_LIB               1
+#define BE_USE_SHARED_LIB               0
 
 /* Macro: BE_USE_OVERLOAD_HASH
  * Allows instances to overload hash methods for use in the
@@ -135,7 +145,7 @@
  * Berry debug hook switch.
  * Default: 0
  **/
-#define BE_USE_DEBUG_HOOK               1
+#define BE_USE_DEBUG_HOOK               0
 
 /* Macro: BE_USE_XXX_MODULE
  * These macros control whether the related module is compiled.
@@ -146,9 +156,9 @@
 #define BE_USE_STRING_MODULE            1
 #define BE_USE_JSON_MODULE              1
 #define BE_USE_MATH_MODULE              1
-#define BE_USE_TIME_MODULE              1
-#define BE_USE_OS_MODULE                1
-#define BE_USE_SYS_MODULE               1
+#define BE_USE_TIME_MODULE              0
+#define BE_USE_OS_MODULE                0
+#define BE_USE_SYS_MODULE               0
 #define BE_USE_DEBUG_MODULE             1
 #define BE_USE_GC_MODULE                1
 
