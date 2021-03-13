@@ -71,6 +71,10 @@ b.resize(0)
 assert(str(b) == 'bytes("")')
 assert(b.size() == 0)
 
+b=bytes("aabb")
+b.clear()
+assert(str(b) == 'bytes("")')
+
 assert(bytes() == bytes())
 assert(bytes("11") == bytes("11"))
 assert(bytes("11") == bytes()..0x11)

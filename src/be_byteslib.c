@@ -421,6 +421,13 @@ static int m_resize(bvm *vm)
     be_return(vm);
 }
 
+static int m_clear(bvm *vm)
+{
+    buf_impl * buf = bytes_check_data(vm, 0);
+    buf->len = 0;
+    be_return_nil(vm);
+}
+
 static int m_merge(bvm *vm)
 {
     int argc = be_top(vm);
@@ -518,6 +525,7 @@ void be_load_byteslib(bvm *vm)
         { "item", m_item },
         { "size", m_size },
         { "resize", m_resize },
+        { "clear", m_clear },
         { "+", m_merge },
         { "..", m_connect },
         { "==", m_equal },
@@ -537,6 +545,7 @@ class be_class_bytes (scope: global, name: bytes) {
     item, func(m_item)
     size, func(m_size)
     resize, func(m_resize)
+    clear, func(m_clear)
     +, func(m_merge)
     .., func(m_connect)
     ==, func(m_equal)
