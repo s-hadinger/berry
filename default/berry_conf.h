@@ -44,7 +44,7 @@
 // #ifdef ESP8266
 // #define BE_USE_PRECOMPILED_OBJECT       0
 // #else
-#define BE_USE_PRECOMPILED_OBJECT       0           // will enable later when stabilized
+#define BE_USE_PRECOMPILED_OBJECT       1           // will enable later when stabilized
 // #endif
 
 /* Macro: BE_DEBUG_RUNTIME_INFO
