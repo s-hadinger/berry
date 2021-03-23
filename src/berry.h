@@ -249,6 +249,22 @@ typedef struct bntvmodule {
     }
 #endif
 
+/* support for solidified berry functions */
+/* native const strings outside of global string hash */
+#define be_define_local_const_str(_name, _s, _hash, _extra, _len, _next) \
+    BERRY_LOCAL const bcstring be_local_const_str_##_name = {            \
+        .next = (bgcobject *)NULL,                                 \
+        .type = BE_STRING,                                         \
+        .marked = GC_CONST,                                        \
+        .extra = 0,                                                \
+        .slen = _len,                                              \
+        .hash = 0,                                                 \
+        .s = _s                                                    \
+    }
+
+#define be_local_const_str(_name) (bstring*) &be_local_const_str_##_name
+
+
 /* debug hook typedefs */
 #define BE_HOOK_LINE    1
 #define BE_HOOK_CALL    2
@@ -346,6 +362,7 @@ BERRY_API void be_pushnstring(bvm *vm, const char *str, size_t n);
 BERRY_API const char* be_pushfstring(bvm *vm, const char *format, ...);
 BERRY_API void* be_pushbuffer(bvm *vm, size_t size);
 BERRY_API void be_pushvalue(bvm *vm, int index);
+BERRY_API void be_pushclosure(bvm *vm, void *cl);
 BERRY_API void be_pushntvclosure(bvm *vm, bntvfunc f, int nupvals);
 BERRY_API void be_pushntvfunction(bvm *vm, bntvfunc f);
 BERRY_API void be_pushclass(bvm *vm, const char *name, const bnfuncinfo *lib);

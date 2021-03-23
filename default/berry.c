@@ -342,10 +342,14 @@ static void berry_paths(bvm * vm)
     }
 }
 
+extern void be_load_testlib(bvm *vm);
+
 int main(int argc, char *argv[])
 {
     int res;
     bvm *vm = be_vm_new(); /* create a virtual machine instance */
+    be_load_testlib(vm);
+
     berry_paths(vm);
     res = analysis_args(vm, argc, argv);
     be_vm_delete(vm); /* free all objects and vm */
