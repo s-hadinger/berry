@@ -87,9 +87,9 @@ static void m_solidify_closure(bvm *vm, bclosure *cl, int builtins)
     logfmt("********************************************************************/\n\n");
 
     /* create static strings for name and source */
-    logfmt("be_define_local_const_str(%s_str_name, \"%s\", %i, 0, %zu, 0);\n",
+    logfmt("be_define_local_const_str(%s_str_name, \"%s\", %i, 0, %u, 0);\n",
             func_name, func_name, be_strhash(pr->name), str_len(pr->name));
-    logfmt("be_define_local_const_str(%s_str_source, \"%s\", %i, 0, %zu, 0);\n",
+    logfmt("be_define_local_const_str(%s_str_source, \"%s\", %i, 0, %u, 0);\n",
             func_name, func_source, be_strhash(pr->source), str_len(pr->source));
     
     /* create static strings first */
