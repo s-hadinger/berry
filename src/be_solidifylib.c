@@ -87,10 +87,10 @@ static void m_solidify_closure(bvm *vm, bclosure *cl, int builtins)
     logfmt("********************************************************************/\n\n");
 
     /* create static strings for name and source */
-    logfmt("be_define_local_const_str(%s_str_name, \"%s\", 0, 0, %zu, 0);\n",
-            func_name, func_name, strlen(func_name));
-    logfmt("be_define_local_const_str(%s_str_source, \"%s\", 0, 0, %zu, 0);\n",
-            func_name, func_source, strlen(func_source));
+    logfmt("be_define_local_const_str(%s_str_name, \"%s\", %i, 0, %zu, 0);\n",
+            func_name, func_name, be_strhash(pr->name), str_len(pr->name));
+    logfmt("be_define_local_const_str(%s_str_source, \"%s\", %i, 0, %zu, 0);\n",
+            func_name, func_source, be_strhash(pr->source), str_len(pr->source));
     
     /* create static strings first */
     for (int i = 0; i < pr->nconst; i++) {
@@ -102,7 +102,7 @@ static void m_solidify_closure(bvm *vm, bclosure *cl, int builtins)
             if (len >= 255) {
                 be_raise(vm, "internal_error", "Strings greater than 255 chars not supported yet");
             }
-            logfmt("\", 0, 0, %zu, 0);\n", len >= 255 ? 255 : len);
+            logfmt("\", %i, 0, %zu, 0);\n", be_strhash(pr->ktab[i].v.s), len >= 255 ? 255 : len);
         }
     }
     logfmt("\n");
@@ -185,7 +185,7 @@ static void m_solidify_closure(bvm *vm, bclosure *cl, int builtins)
     logfmt("};\n\n");
 
     // closure
-    logfmt("const bclosure %s_closure = {\n", func_name);
+    logfmt("static const bclosure %s_closure = {\n", func_name);
     // bcommon_header
     logfmt("  NULL,     // bgcobject *next\n");
     logfmt("  %i,       // type\n", cl->type);

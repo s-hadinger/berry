@@ -26,6 +26,7 @@
 static void class_init(bvm *vm, bclass *c, const bnfuncinfo *lib)
 {
     if (lib) {
+        be_gc_setpause(vm, 0);
         while (lib->name) {
             bstring *s = be_newstr(vm, lib->name);
             if (lib->function) { /* method */
@@ -46,6 +47,8 @@ static void class_init(bvm *vm, bclass *c, const bnfuncinfo *lib)
                 ++lib;
             }
         }
+        be_gc_setpause(vm, 1);
+        be_gc_auto(vm);
         be_map_release(vm, c->members); /* clear space */
     }
 }

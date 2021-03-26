@@ -61,9 +61,7 @@ int be_eqstr(bstring *s1, bstring *s2)
         if (cast(bcstring*, s1)->hash && cast(bcstring*, s2)->hash) {
             return 0; /* if they both have a hash, then we know they are different */
         }
-        const char * ss1 = (gc_isconst(s1) && !cast(bcstring*, s1)->hash) ? cstr(s1) : str(s1);
-        const char * ss2 = (gc_isconst(s2) && !cast(bcstring*, s2)->hash) ? cstr(s2) : str(s2);
-        return !strcmp(ss1, ss2);
+        return !strcmp(str(s1), str(s2));
     }
 
     return 0;
@@ -268,7 +266,7 @@ uint32_t be_strhash(const bstring *s)
         if (cs->hash) {  /* if hash is null we need to compute it */
             return cs->hash;
         } else {
-            return str_hash(str(s), str_len(s));
+            return str_hash(cstr(s), str_len(s));
         }
     }
 #if BE_USE_STR_HASH_CACHE
