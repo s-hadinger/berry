@@ -17,7 +17,7 @@ static const bupvaldesc f_0_upvals[1] = {
   be_local_const_upval(1, 1),
 };
 
-be_define_local_const_str(f_0_str_name, "f_0", 607256038, 0, 8, 0);
+be_define_local_const_str(f_0_str_name, "<lambda>", 607256038, 0, 8, 0);
 be_define_local_const_str(f_0_str_source, "stdin", -1529146723, 0, 5, 0);
 
 static const uint32_t f_0_code[4] = {
