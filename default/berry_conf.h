@@ -25,7 +25,7 @@
  * type when the value is 2.
  * Default: 2
  */
-#define BE_INTGER_TYPE                  2
+#define BE_INTGER_TYPE                  1           // use long int = uint32_t
 
 /* Macro: BE_USE_SINGLE_FLOAT
  * Select floating point precision.
@@ -34,7 +34,7 @@
  * numbers.
  * Default: 0
  **/
-#define BE_USE_SINGLE_FLOAT             0
+#define BE_USE_SINGLE_FLOAT             1           // use `float` not `double`
 
 /* Macro: BE_USE_PRECOMPILED_OBJECT
  * Use precompiled objects to avoid creating these objects at
@@ -50,7 +50,7 @@
  * 2: the information use uint16_t type (save space).
  * Default: 1
  **/
-#define BE_DEBUG_RUNTIME_INFO           1
+#define BE_DEBUG_RUNTIME_INFO           0
 
 /* Macro: BE_DEBUG_VAR_INFO
  * Set variable debugging tracking information.
@@ -58,7 +58,7 @@
  * 1: enable variable debugging tracking information at runtime.
  * Default: 1
  **/
-#define BE_DEBUG_VAR_INFO               1
+#define BE_DEBUG_VAR_INFO               0
 
 /* Macro: BE_USE_OBSERVABILITY_HOOK
  * Use the obshook function to report low-level actions.
@@ -135,7 +135,7 @@
  * Berry debug hook switch.
  * Default: 0
  **/
-#define BE_USE_DEBUG_HOOK               1
+#define BE_USE_DEBUG_HOOK               0
 
 /* Macro: BE_USE_DEBUG_GC
  * Enable GC debug mode. This causes an actual gc after each

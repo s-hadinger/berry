@@ -121,6 +121,11 @@ int be_class_closure_count(bclass *c)
 static binstance* instance_member(bvm *vm,
     binstance *obj, bstring *name, bvalue *dst)
 {
+    /* if the string is a const short string */
+    if (gc_isconst(name) && !cast(bcstring*, name)->hash) {
+        /* replace on the fly with a valid string with hash */
+        name = be_newstrn(vm, cast(bcstring*, name)->s, name->slen);
+    }
     for (; obj; obj = obj->super) {
         bmap *members = obj->_class->members;
         if (members) {
