@@ -140,6 +140,23 @@ static binstance* instance_member(bvm *vm,
     return NULL;
 }
 
+static bclass* class_member(bvm *vm,
+    bclass *obj, bstring *name, bvalue *dst)
+{
+    for (; obj; obj = obj->super) {
+        bmap *members = obj->members;
+        if (members) {
+            bvalue *v = be_map_findstr(vm, members, name);
+            if (v) {
+                *dst = *v;
+                return obj;
+            }
+        }
+    }
+    var_setnil(dst);
+    return NULL;
+}
+
 void be_class_upvalue_init(bvm *vm, bclass *c)
 {
     bmap *mbr = c->members;
@@ -248,6 +265,18 @@ bbool be_instance_setmember(bvm *vm, binstance *o, bstring *name, bvalue *src)
             vm->top -= 4;
             return var_tobool(top);
         }
+    }
+    return bfalse;
+}
+
+bbool be_class_setmember(bvm *vm, bclass *o, bstring *name, bvalue *src)
+{
+    bvalue v;
+    be_assert(name != NULL);
+    bclass * obj = class_member(vm, o, name, &v);
+    if (obj && !var_istype(&v, MT_VARIABLE)) {
+        be_map_insertstr(vm, obj->members, name, src);
+        return btrue;
     }
     return bfalse;
 }

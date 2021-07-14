@@ -671,6 +671,9 @@ void be_load_byteslib(bvm *vm)
 /* @const_object_info_begin
 class be_class_bytes (scope: global, name: bytes) {
     .p, var
+    a, int(32)
+    b, str("foobar")
+    pi, real(3.1415)
     init, func(m_init)
     tostring, func(m_tostring)
     asstring, func(m_asstring)

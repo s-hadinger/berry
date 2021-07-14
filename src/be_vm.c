@@ -833,6 +833,16 @@ newframe: /* a new call frame */
                 }
                 dispatch();
             }
+            if (var_isclass(a) && var_isstr(b)) {
+                bclass *obj = var_toobj(a);
+                bstring *attr = var_tostr(b);
+                if (!be_class_setmember(vm, obj, attr, c)) {
+                    vm_error(vm, "attribute_error",
+                        "class '%s' cannot assign to static attribute '%s'",
+                        str(be_class_name(obj)), str(attr));
+                }
+                dispatch();
+            }
             if (var_ismodule(a) && var_isstr(b)) {
                 bmodule *obj = var_toobj(a);
                 bstring *attr = var_tostr(b);

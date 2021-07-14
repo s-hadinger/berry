@@ -61,5 +61,6 @@ void be_class_upvalue_init(bvm *vm, bclass *c);
 bbool be_class_newobj(bvm *vm, bclass *c, bvalue *argv, int argc, int mode);
 int be_instance_member(bvm *vm, binstance *obj, bstring *name, bvalue *dst);
 bbool be_instance_setmember(bvm *vm, binstance *obj, bstring *name, bvalue *src);
+bbool be_class_setmember(bvm *vm, bclass *obj, bstring *name, bvalue *src);
 
 #endif
