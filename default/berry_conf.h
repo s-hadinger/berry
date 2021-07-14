@@ -143,7 +143,7 @@
  * in production code.
  * Default: 0
  **/
-#define BE_USE_DEBUG_GC                  0
+#define BE_USE_DEBUG_GC                  1
 
 /* Macro: BE_USE_XXX_MODULE
  * These macros control whether the related module is compiled.

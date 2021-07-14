@@ -21,6 +21,8 @@
 #include "be_debug.h"
 #include "be_exec.h"
 
+#include <stdio.h>
+
 #define OP_NOT_BINARY           TokenNone
 #define OP_NOT_UNARY            TokenNone
 #define OP_NOT_ASSIGN           TokenNone
@@ -1235,6 +1237,52 @@ static void classvar_stmt(bparser *parser, bclass *c)
     }
 }
 
+static void const_field(bparser *parser)
+{
+    /* ID '=' expr */
+    bexpdesc e1, e2;
+    bstring *name;
+    name = next_token(parser).u.s;
+    match_token(parser, TokenId); /* match and skip ID */
+    if (match_skip(parser, OptAssign)) { /* '=' */
+        expr(parser, &e2);
+        check_var(parser, &e2);
+    } else {
+        // TODO error
+        parser_error(parser, "'=' expected");
+        // init_exp(&e2, ETNIL, 0);
+    }
+    // new_var(parser, name, &e1); /* new variable */
+    // be_code_setvar(parser->finfo, &e1, &e2);
+}
+
+static void classconst_stmt(bparser *parser, bclass *c)
+{
+    bstring *name;
+    /* 'const' ID ['=' expr] {',' ID ['=' expr]} */
+    scan_next_token(parser); /* skip 'const' */
+
+    const_field(parser);
+    while (match_skip(parser, OptComma)) { /* ',' */
+        const_field(parser);
+    }
+
+    // if (match_id(parser, name) != NULL) {
+    //     check_class_attr(parser, c, name);
+    //     be_member_bind(parser->vm, c, name);
+    //     while (match_skip(parser, OptComma)) { /* ',' */
+    //         if (match_id(parser, name) != NULL) {
+    //             check_class_attr(parser, c, name);
+    //             be_member_bind(parser->vm, c, name);
+    //         } else {
+    //             parser_error(parser, "class var error");
+    //         }
+    //     }
+    // } else {
+    //     parser_error(parser, "class var error");
+    // }
+}
+
 static void classdef_stmt(bparser *parser, bclass *c)
 {
     bexpdesc e;
@@ -1266,6 +1314,7 @@ static void class_block(bparser *parser, bclass *c)
     while (block_follow(parser)) {
         switch (next_type(parser)) {
         case KeyVar: classvar_stmt(parser, c); break;
+        case KeyStatic: classconst_stmt(parser, c); break;
         case KeyDef: classdef_stmt(parser, c); break;
         case OptSemic: scan_next_token(parser); break;
         default: push_error(parser,
