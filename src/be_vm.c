@@ -296,6 +296,19 @@ static int obj_attribute(bvm *vm, bvalue *o, bvalue *c, bvalue *dst)
     return type;
 }
 
+static int class_attribute(bvm *vm, bvalue *o, bvalue *c, bvalue *dst)
+{
+    bstring *attr = var_tostr(c);
+    bclass *obj = var_toobj(o);
+    int type = be_class_member(vm, obj, attr, dst);
+    if (type == BE_NONE) {
+        vm_error(vm, "attribute_error",
+            "the '%s' class has no static attribute '%s'",
+            str(obj->name), str(attr));
+    }
+    return type;
+}
+
 static bbool object_eqop(bvm *vm,
     const char *op, bbool iseq, bvalue *a, bvalue *b)
 {
@@ -741,6 +754,9 @@ newframe: /* a new call frame */
             bvalue *a = RA(), *b = RKB(), *c = RKC();
             if (var_isinstance(b) && var_isstr(c)) {
                 obj_attribute(vm, b, c, a);
+                reg = vm->reg;
+            } else if (var_isclass(b) && var_isstr(c)) {
+                class_attribute(vm, b, c, a);
                 reg = vm->reg;
             } else if (var_ismodule(b) && var_isstr(c)) {
                 bstring *attr = var_tostr(c);

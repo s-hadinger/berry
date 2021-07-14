@@ -153,7 +153,7 @@ static bclass* class_member(bvm *vm,
             }
         }
     }
-    var_setnil(dst);
+    var_setnone(dst);
     return NULL;
 }
 
@@ -238,6 +238,15 @@ int be_instance_member(bvm *vm, binstance *obj, bstring *name, bvalue *dst)
     if (obj && type == MT_VARIABLE) {
         *dst = obj->members[dst->v.i];
     }
+    return type;
+}
+
+int be_class_member(bvm *vm, bclass *obj, bstring *name, bvalue *dst)
+{
+    int type;
+    be_assert(name != NULL);
+    obj = class_member(vm, obj, name, dst);
+    type = var_type(dst);
     return type;
 }
 
