@@ -36,7 +36,7 @@ static void class_init(bvm *vm, bclass *c, const bnfuncinfo *lib)
             if (lib->function) { /* method */
                 be_prim_method_bind(vm, c, s, lib->function);
             } else {
-                be_member_bind(vm, c, s); /* member */
+                be_member_bind(vm, c, s, btrue); /* member */
             }
             ++lib;
         }

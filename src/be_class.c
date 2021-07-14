@@ -56,15 +56,20 @@ int be_class_attribute(bvm *vm, bclass *c, bstring *attr)
     return BE_NIL;
 }
 
-void be_member_bind(bvm *vm, bclass *c, bstring *name)
+void be_member_bind(bvm *vm, bclass *c, bstring *name, bbool var)
 {
     bvalue *attr;
     set_fixed(name);
     check_members(vm, c);
     attr = be_map_insertstr(vm, c->members, name, NULL);
     restore_fixed(name);
-    attr->v.i = c->nvar++;
-    attr->type = MT_VARIABLE;
+    if (var) {
+        /* this is an instance variable so we set it as MT_VARIABLE */
+        attr->v.i = c->nvar++;
+        attr->type = MT_VARIABLE;
+    } else {
+        /* this is a static class constant, leave it as BE_NIL */
+    }
 }
 
 void be_method_bind(bvm *vm, bclass *c, bstring *name, bproto *p)

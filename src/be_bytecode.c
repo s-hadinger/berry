@@ -406,7 +406,7 @@ static void load_class(bvm *vm, void *fp, bvalue *v)
     }
     for (count = 0; count < nvar; ++count) { /* load member-variable table */
         bstring *name = cache_string(vm, fp);
-        be_member_bind(vm, c, name);
+        be_member_bind(vm, c, name, btrue);
         be_stackpop(vm, 1); /* pop the cached string */
     }
 }
