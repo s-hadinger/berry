@@ -194,6 +194,7 @@ typedef const char* (*breader)(void*, size_t*);
 #define var_setobj(_v, _t, _o)  { (_v)->v.p = _o; var_settype(_v, _t); }
 
 #define var_isnil(_v)           var_istype(_v, BE_NIL)
+#define var_isnone(_v)          var_istype(_v, BE_NONE)
 #define var_isbool(_v)          var_istype(_v, BE_BOOL)
 #define var_isint(_v)           var_istype(_v, BE_INT)
 #define var_isreal(_v)          var_istype(_v, BE_REAL)
@@ -212,6 +213,7 @@ typedef const char* (*breader)(void*, size_t*);
 #define var_isnumber(_v)        (var_isint(_v) || var_isreal(_v))
 
 #define var_setnil(_v)          var_settype(_v, BE_NIL)
+#define var_setnone(_v)         var_settype(_v, BE_NONE)
 #define var_setval(_v, _s)      (*(_v) = *(_s))
 #define var_setbool(_v, _b)     { var_settype(_v, BE_BOOL); (_v)->v.b = (bbool)(_b); }
 #define var_setint(_v, _i)      { var_settype(_v, BE_INT); (_v)->v.i = (_i); }

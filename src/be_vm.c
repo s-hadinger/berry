@@ -228,7 +228,8 @@ static bbool obj2bool(bvm *vm, bvalue *var)
     binstance *obj = var_toobj(var);
     bstring *tobool = str_literal(vm, "tobool");
     /* get operator method */
-    if (be_instance_member(vm, obj, tobool, vm->top)) {
+    int type = be_instance_member(vm, obj, tobool, vm->top);
+    if (type != BE_NONE && type != BE_NIL) {
         vm->top[1] = *var; /* move self to argv[0] */
         be_dofunc(vm, vm->top, 1); /* call method 'tobool' */
         /* check the return value */
@@ -273,7 +274,7 @@ static int obj_attribute(bvm *vm, bvalue *o, bvalue *c, bvalue *dst)
     bstring *attr = var_tostr(c);
     binstance *obj = var_toobj(o);
     int type = be_instance_member(vm, obj, attr, dst);
-    if (basetype(type) == BE_NIL) { /* if no method found, try virtual */
+    if (type == BE_NONE) { /* if no method found, try virtual */
         /* get method 'member' */
         int type2 = be_instance_member(vm, obj, str_literal(vm, "member"), vm->top);
         if (basetype(type2) == BE_FUNCTION) {
@@ -287,7 +288,7 @@ static int obj_attribute(bvm *vm, bvalue *o, bvalue *c, bvalue *dst)
             type = var_type(dst);
         }
     }
-    if (basetype(type) == BE_NIL) {
+    if (type == BE_NONE) {
         vm_error(vm, "attribute_error",
             "the '%s' object has no attribute '%s'",
             str(be_instance_name(obj)), str(attr));

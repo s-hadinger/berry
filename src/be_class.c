@@ -53,7 +53,7 @@ int be_class_attribute(bvm *vm, bclass *c, bstring *attr)
             }
         }
     }
-    return BE_NIL;
+    return BE_NONE;
 }
 
 void be_member_bind(bvm *vm, bclass *c, bstring *name, bbool var)
@@ -136,7 +136,7 @@ static binstance* instance_member(bvm *vm,
             }
         }
     }
-    var_setnil(dst);
+    var_setnone(dst);
     return NULL;
 }
 

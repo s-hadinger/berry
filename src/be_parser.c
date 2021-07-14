@@ -1210,7 +1210,7 @@ static void return_stmt(bparser *parser)
 
 static void check_class_attr(bparser *parser, bclass *c, bstring *attr)
 {
-    if (be_class_attribute(parser->vm, c, attr) != BE_NIL) {
+    if (be_class_attribute(parser->vm, c, attr) != BE_NONE) {
         push_error(parser,
             "redefinition of the attribute '%s'", str(attr));
     }

@@ -643,6 +643,9 @@ static int ins_member(bvm *vm, int index, const char *k)
     if (var_isinstance(o)) {
         binstance *obj = var_toobj(o);
         type = be_instance_member(vm, obj, be_newstr(vm, k), top);
+        if (type == BE_NONE) {
+            type = BE_NIL;
+        }
     }
     return type;
 }
