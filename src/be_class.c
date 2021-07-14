@@ -15,6 +15,8 @@
 #include "be_func.h"
 #include "be_var.h"
 
+#include <stdio.h>
+
 #define check_members(vm, c)            \
     if (!(c)->members) {                \
         (c)->members = be_map_new(vm);  \
@@ -136,24 +138,26 @@ static binstance* instance_member(bvm *vm,
             }
         }
     }
-    var_setnone(dst);
+    var_setnil(dst);
     return NULL;
 }
 
 static bclass* class_member(bvm *vm,
     bclass *obj, bstring *name, bvalue *dst)
 {
+fprintf(stderr, "class_member %p - %s\n", (void*) obj, str(name));
     for (; obj; obj = obj->super) {
         bmap *members = obj->members;
         if (members) {
             bvalue *v = be_map_findstr(vm, members, name);
             if (v) {
+fprintf(stderr, "class_member type %i\n", var_type(v));
                 *dst = *v;
                 return obj;
             }
         }
     }
-    var_setnone(dst);
+    var_setnil(dst);
     return NULL;
 }
 
@@ -238,7 +242,11 @@ int be_instance_member(bvm *vm, binstance *obj, bstring *name, bvalue *dst)
     if (obj && type == MT_VARIABLE) {
         *dst = obj->members[dst->v.i];
     }
-    return type;
+    if (obj) {
+        return type;
+    } else {
+        return BE_NONE;
+    }
 }
 
 int be_class_member(bvm *vm, bclass *obj, bstring *name, bvalue *dst)
@@ -247,7 +255,11 @@ int be_class_member(bvm *vm, bclass *obj, bstring *name, bvalue *dst)
     be_assert(name != NULL);
     obj = class_member(vm, obj, name, dst);
     type = var_type(dst);
-    return type;
+    if (obj) {
+        return type;
+    } else {
+        return BE_NONE;
+    }
 }
 
 bbool be_instance_setmember(bvm *vm, binstance *o, bstring *name, bvalue *src)

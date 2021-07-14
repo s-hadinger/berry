@@ -23,6 +23,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <stdio.h>
+
 #define NOT_METHOD          BE_NONE
 
 #define vm_error(vm, except, ...) \
@@ -301,6 +303,7 @@ static int class_attribute(bvm *vm, bvalue *o, bvalue *c, bvalue *dst)
     bstring *attr = var_tostr(c);
     bclass *obj = var_toobj(o);
     int type = be_class_member(vm, obj, attr, dst);
+fprintf(stderr, "class_attribute type=%i\n", type);
     if (type == BE_NONE) {
         vm_error(vm, "attribute_error",
             "the '%s' class has no static attribute '%s'",
