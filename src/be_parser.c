@@ -492,6 +492,9 @@ static int singlevaraux(bvm *vm, bfuncinfo *finfo, bstring *s, bexpdesc *var)
     }
 }
 
+/* get variable from next toden as name */
+/* and create an expdesc from it */
+/* can be new, global, named global, upval */
 static void singlevar(bparser *parser, bexpdesc *var)
 {
     bexpdesc key;
@@ -517,6 +520,9 @@ static void singlevar(bparser *parser, bexpdesc *var)
     }
 }
 
+/* Parse function or method variable list */
+/* Create an implicit local variable for each argument */
+/* Raise an exception if multiple arguments have the same name */
 static void func_varlist(bparser *parser)
 {
     bexpdesc v;
