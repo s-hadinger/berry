@@ -177,14 +177,15 @@ void end_varinfo(bparser *parser, int beginpc)
 
 #endif
 
+/* Initialize bblockinfo structure */
 static void begin_block(bfuncinfo *finfo, bblockinfo *binfo, int type)
 {
-    binfo->prev = finfo->binfo;
-    finfo->binfo = binfo;
+    binfo->prev = finfo->binfo; /* save previous block */
+    finfo->binfo = binfo; /* tell parser this is the current block */
     binfo->type = (bbyte)type;
     binfo->hasupval = 0;
-    binfo->beginpc = finfo->pc;
-    binfo->nactlocals = (bbyte)be_list_count(finfo->local);
+    binfo->beginpc = finfo->pc; /* set starting pc for this block */
+    binfo->nactlocals = (bbyte)be_list_count(finfo->local); /* count number of local variables in previous block */
     if (type & BLOCK_LOOP) {
         binfo->breaklist = NO_JUMP;
         binfo->continuelist = NO_JUMP;
@@ -202,9 +203,9 @@ static void end_block_ex(bparser *parser, int beginpc)
         be_code_patchlist(finfo, binfo->continuelist, binfo->beginpc);
     }
     end_varinfo(parser, beginpc);
-    be_list_resize(parser->vm, finfo->local, binfo->nactlocals);
-    finfo->freereg = binfo->nactlocals;
-    finfo->binfo = binfo->prev;
+    be_list_resize(parser->vm, finfo->local, binfo->nactlocals); /* remove local variables from this block, they are now out of scope */
+    finfo->freereg = binfo->nactlocals; /* adjust first free register accordingly */
+    finfo->binfo = binfo->prev; /* restore previous block */
 }
 
 static void end_block(bparser *parser)
@@ -396,6 +397,7 @@ static int new_localvar(bparser *parser, bstring *name)
     return reg;
 }
 
+/* Find upval by name, if found return its index number, or -1 */
 static int find_upval(bfuncinfo *finfo, bstring *s)
 {
     bvm *vm = finfo->lexer->vm;
@@ -406,6 +408,8 @@ static int find_upval(bfuncinfo *finfo, bstring *s)
     return -1;
 }
 
+/* Recursively search for upper blocks that are referenced in upvals */
+/* and mark them with `hasupval` */
 static void mark_upval(bfuncinfo *finfo, int level)
 {
     bblockinfo *binfo = finfo->prev->binfo;
@@ -434,12 +438,14 @@ static int new_upval(bvm *vm, bfuncinfo *finfo, bstring *name, bexpdesc *var)
     return index;
 }
 
+/* create a new variable in currenr context as name, and create expdesc for it */
+/* If within a block, create as local, otherwise as global */
 static void new_var(bparser *parser, bstring *name, bexpdesc *var)
 {
     bfuncinfo *finfo = parser->finfo;
     if (finfo->prev || finfo->binfo->prev || parser->islocal) {
         init_exp(var, ETLOCAL, 0);
-        var->v.idx = new_localvar(parser, name);
+        var->v.idx = new_localvar(parser, name); /* if local, contains the index in current local var list */
     } else {
         init_exp(var, ETGLOBAL, 0);
         var->v.idx = be_global_new(parser->vm, name);
