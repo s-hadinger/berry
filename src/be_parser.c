@@ -222,29 +222,30 @@ static bstring* parser_source(bparser *parser)
     return be_newstr(parser->vm, parser->lexer.fname);
 }
 
+/* Initialize a function block and create a new `bprotoˋ */
 static void begin_func(bparser *parser, bfuncinfo *finfo, bblockinfo *binfo)
 {
     bvm *vm = parser->vm;
     bproto *proto = be_newproto(vm);
     var_setproto(vm->top, proto);
     be_stackpush(vm);
-    be_vector_init(vm, &finfo->code, sizeof(binstruction));
+    be_vector_init(vm, &finfo->code, sizeof(binstruction)); /* vector for code */
     proto->code = be_vector_data(&finfo->code);
     proto->codesize = be_vector_capacity(&finfo->code);
-    be_vector_init(vm, &finfo->kvec, sizeof(bvalue));
+    be_vector_init(vm, &finfo->kvec, sizeof(bvalue)); /* vector for constants */
     proto->ktab = be_vector_data(&finfo->kvec);
     proto->nconst = be_vector_capacity(&finfo->kvec);
-    be_vector_init(vm, &finfo->pvec, sizeof(bproto*));
+    be_vector_init(vm, &finfo->pvec, sizeof(bproto*)); /* vector for subprotos */
     proto->ptab = be_vector_data(&finfo->pvec);
     proto->nproto = be_vector_capacity(&finfo->pvec);
-    proto->source = parser_source(parser);
-    finfo->local = be_list_new(vm);
-    var_setlist(vm->top, finfo->local);
+    proto->source = parser_source(parser); /* keep a copy of source for function */
+    finfo->local = be_list_new(vm); /* list for local variables */
+    var_setlist(vm->top, finfo->local); /* push list of local variables on the stack (avoid gc? */
     be_stackpush(vm);
-    finfo->upval = be_map_new(vm);
+    finfo->upval = be_map_new(vm); /* push a map for upvals on stack */
     var_setmap(vm->top, finfo->upval);
     be_stackpush(vm);
-    finfo->prev = parser->finfo;
+    finfo->prev = parser->finfo; /* init finfo */
     finfo->lexer = &parser->lexer;
     finfo->proto = proto;
     finfo->freereg = 0;
@@ -289,6 +290,7 @@ static void setupvals(bfuncinfo *finfo)
     }
 }
 
+/* Function is complete, finalize bproto */
 static void end_func(bparser *parser)
 {
     bvm *vm = parser->vm;
@@ -296,9 +298,9 @@ static void end_func(bparser *parser)
     bproto *proto = finfo->proto;
 
     be_code_ret(finfo, NULL); /* append a return to last code */
-    end_block(parser);
-    setupvals(finfo);
-    proto->code = be_vector_release(vm, &finfo->code);
+    end_block(parser); /* close block */
+    setupvals(finfo); /* close upvals */
+    proto->code = be_vector_release(vm, &finfo->code); /* release all vectors */
     proto->codesize = finfo->pc;
     proto->ktab = be_vector_release(vm, &finfo->kvec);
     proto->nconst = be_vector_count(&finfo->kvec);
