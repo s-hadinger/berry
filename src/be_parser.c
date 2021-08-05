@@ -212,6 +212,8 @@ static void end_block(bparser *parser)
     end_block_ex(parser, -1);
 }
 
+/* Return the name of the source for this parser, could be `string`,
+   `stdin` or the name of the current function */
 static bstring* parser_source(bparser *parser)
 {
     if (parser->finfo) {
