@@ -300,7 +300,7 @@ static void end_func(bparser *parser)
     be_code_ret(finfo, NULL); /* append a return to last code */
     end_block(parser); /* close block */
     setupvals(finfo); /* close upvals */
-    proto->code = be_vector_release(vm, &finfo->code); /* release all vectors */
+    proto->code = be_vector_release(vm, &finfo->code); /* compact all vectors and return NULL if empty */
     proto->codesize = finfo->pc;
     proto->ktab = be_vector_release(vm, &finfo->kvec);
     proto->nconst = be_vector_count(&finfo->kvec);
