@@ -87,6 +87,8 @@ static void match_token(bparser *parser, btokentype type)
     scan_next_token(parser); /* skip this token */
 }
 
+/* Check that the next token is not of type `type` */
+/* or raise an exception */
 static void match_notoken(bparser *parser, btokentype type)
 {
     if (next_type(parser) == type) { /* error when token is match */
@@ -95,6 +97,7 @@ static void match_notoken(bparser *parser, btokentype type)
     }
 }
 
+/* check that the token is a symbol (ex variable name) or raise an exception */
 static void check_symbol(bparser *parser, bexpdesc *e)
 {
     if (e->type == ETVOID && e->v.s == NULL) { /* error when token is not a symbol */
@@ -103,6 +106,8 @@ static void check_symbol(bparser *parser, bexpdesc *e)
     }
 }
 
+/* check that the token looks like a variable name and that the variable 
+   already exists or raise an exception that the variable is unknown */
 static void check_var(bparser *parser, bexpdesc *e)
 {
     check_symbol(parser, e); /* check the token is a symbol */
