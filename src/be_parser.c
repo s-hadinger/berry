@@ -546,25 +546,29 @@ static void func_varlist(bparser *parser)
     parser->finfo->proto->argc = parser->finfo->freereg;
 }
 
+/* Parse a function includind arg list and body */
+/* Given name and type (function or method) */
+/* Returns `bproto` object */
 static bproto* funcbody(bparser *parser, bstring *name, int type)
 {
     bfuncinfo finfo;
     bblockinfo binfo;
 
     /* '(' varlist ')' block 'end' */
-    begin_func(parser, &finfo, &binfo);
+    begin_func(parser, &finfo, &binfo); /* init new function context */
     finfo.proto->name = name;
-    if (type & FUNC_METHOD) {
+    if (type & FUNC_METHOD) { /* If method, add an implicit first argument `self` */
         new_localvar(parser, parser_newstr(parser, "self"));
     }
-    func_varlist(parser);
-    stmtlist(parser);
-    end_func(parser);
+    func_varlist(parser); /* parse arg list */
+    stmtlist(parser); /* parse statement without final `end` */
+    end_func(parser); /* close function context */
     match_token(parser, KeyEnd); /* skip 'end' */
-    return finfo.proto;
+    return finfo.proto; /* return fully constructed `bproto` */
 }
 
-/* anonymous function */
+/* anonymous function, build `bproto` object with name `<anonymous>` */
+/* and build a expdesc for the bproto */
 static void anon_func(bparser *parser, bexpdesc *e)
 {
     bproto *proto;
