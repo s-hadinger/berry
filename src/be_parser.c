@@ -266,6 +266,7 @@ static void begin_func(bparser *parser, bfuncinfo *finfo, bblockinfo *binfo)
     begin_block(finfo, binfo, 0);
 }
 
+/* compute the upval structure */
 static void setupvals(bfuncinfo *finfo)
 {
     bproto *proto = finfo->proto;
@@ -314,10 +315,11 @@ static void end_func(bparser *parser)
     proto->varinfo = be_vector_release(vm, &finfo->varvec);
     proto->nvarinfo = be_vector_count(&finfo->varvec);
 #endif
-    parser->finfo = parser->finfo->prev;
+    parser->finfo = parser->finfo->prev; /* restore previous `finfo` */
     be_stackpop(vm, 2); /* pop upval and local */
 }
 
+/* is the next token a binary operator? If yes return the operator or `OP_NOT_BINARY` */
 static btokentype get_binop(bparser *parser)
 {
     btokentype op = next_type(parser);
@@ -327,6 +329,8 @@ static btokentype get_binop(bparser *parser)
     return OP_NOT_BINARY;
 }
 
+/* is the next token a unary operator? If yes return the operator or `OP_NOT_BINARY` */
+/* operator 'negative' 'not' and 'flip' */
 static btokentype get_unary_op(bparser *parser)
 {
     btokentype op = next_type(parser);
@@ -336,6 +340,8 @@ static btokentype get_unary_op(bparser *parser)
     return OP_NOT_UNARY;
 }
 
+/* is the next token an assignment operator? If yes return the operator or `OP_NOT_BINARY` */
+/* `=`, `+=`, ... `>>=` */
 static btokentype get_assign_op(bparser *parser)
 {
     btokentype op = next_type(parser);
@@ -345,6 +351,7 @@ static btokentype get_assign_op(bparser *parser)
     return OP_NOT_ASSIGN;
 }
 
+/* Initialize bexpdesc structure with specific type and value as int */
 static void init_exp(bexpdesc *e, exptype_t type, bint i)
 {
     e->type = (bbyte)type;
@@ -355,6 +362,8 @@ static void init_exp(bexpdesc *e, exptype_t type, bint i)
     e->v.i = i;
 }
 
+/* find local variable by name, starting at index `begin` */
+/* linear search, returns -1 if not found */
 static int find_localvar(bfuncinfo *finfo, bstring *s, int begin)
 {
     int i, count = be_list_count(finfo->local);
@@ -367,10 +376,13 @@ static int find_localvar(bfuncinfo *finfo, bstring *s, int begin)
     return -1; /* not found */
 }
 
+/* create a new local variable by name, or return the current register if already exists */
+/* returns the Reg number for the variable */
 static int new_localvar(bparser *parser, bstring *name)
 {
     bfuncinfo *finfo = parser->finfo;
-    int reg = find_localvar(finfo, name, finfo->binfo->nactlocals);
+    int reg = find_localvar(finfo, name, finfo->binfo->nactlocals); /* look if already exists skipping the local variables from upper blocks */
+    /* 'strict': raise an exception if the local variable shadows another local variable */
     if (reg == -1) {
         bvalue *var;
         reg = be_list_count(finfo->local); /* new local index */
