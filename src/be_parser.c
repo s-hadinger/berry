@@ -229,7 +229,7 @@ static void begin_func(bparser *parser, bfuncinfo *finfo, bblockinfo *binfo)
     bproto *proto = be_newproto(vm);
     var_setproto(vm->top, proto);
     be_stackpush(vm);
-    be_vector_init(vm, &finfo->code, sizeof(binstruction)); /* vector for code */
+    be_vector_init(vm, &finfo->code, sizeof(binstruction)); /* vector for code, vectors are not gced */
     proto->code = be_vector_data(&finfo->code);
     proto->codesize = be_vector_capacity(&finfo->code);
     be_vector_init(vm, &finfo->kvec, sizeof(bvalue)); /* vector for constants */
@@ -240,7 +240,7 @@ static void begin_func(bparser *parser, bfuncinfo *finfo, bblockinfo *binfo)
     proto->nproto = be_vector_capacity(&finfo->pvec);
     proto->source = parser_source(parser); /* keep a copy of source for function */
     finfo->local = be_list_new(vm); /* list for local variables */
-    var_setlist(vm->top, finfo->local); /* push list of local variables on the stack (avoid gc? */
+    var_setlist(vm->top, finfo->local); /* push list of local variables on the stack (avoid gc) */
     be_stackpush(vm);
     finfo->upval = be_map_new(vm); /* push a map for upvals on stack */
     var_setmap(vm->top, finfo->upval);
