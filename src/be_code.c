@@ -56,6 +56,7 @@ static void codelineinfo(bfuncinfo *finfo)
     #define codelineinfo(finfo)
 #endif
 
+/* Add new instruction in the code vector */
 static int codeinst(bfuncinfo *finfo, binstruction ins)
 {
     /* put new instruction in code array */
