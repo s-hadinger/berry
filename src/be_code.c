@@ -106,6 +106,8 @@ static void free_expreg(bfuncinfo *finfo, bexpdesc *e)
     }
 }
 
+/* Allocate `count` new registers on the stack and uptade proto´s max nstack accordingly */
+/* deallocate is simpler and handled by a macro */
 static void allocstack(bfuncinfo *finfo, int count)
 {
     int nstack = finfo->freereg + count;
@@ -117,6 +119,7 @@ static void allocstack(bfuncinfo *finfo, int count)
     }
 }
 
+/* Allocate `count` registers at top of stack, update stack accordingly */
 int be_code_allocregs(bfuncinfo *finfo, int count)
 {
     int base = finfo->freereg;
