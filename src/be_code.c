@@ -647,6 +647,10 @@ int be_code_getmethod(bfuncinfo *finfo, bexpdesc *e)
     return dst;
 }
 
+/* Generate a CALL instruction at base register with argc consecutive values */
+/* i.e. arg1 is base+1... */
+/* Important: argc registers are freed upon call, which are supposed to be registers above base */
+/* TODO check that there are no more than `argc` registers above ‘base` on stack */
 void be_code_call(bfuncinfo *finfo, int base, int argc)
 {
     codeABC(finfo, OP_CALL, base, argc, 0);
