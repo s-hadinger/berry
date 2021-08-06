@@ -621,6 +621,9 @@ int be_code_setvar(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
     return 0;
 }
 
+/* Get the expdesc as a register */
+/* if already in a register, use the existing register */
+/* if local or const, allocate a new register and copy value */
 int be_code_nextreg(bfuncinfo *finfo, bexpdesc *e)
 {
     int dst = finfo->freereg;
