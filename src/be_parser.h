@@ -23,8 +23,8 @@ typedef enum {
     ETLOCAL,    /* local variable, allocated until end of scope */
     ETGLOBAL,
     ETUPVAL,
-    ETMEMBER,
-    ETINDEX,
+    ETMEMBER,   /* member accessor (by name) */
+    ETINDEX,    /* index accessor (ex array index) */
     ETREG,      /* temporary register, can be freed if top of stack */
     ETNGLOBAL   /* named global */
 } exptype_t;
