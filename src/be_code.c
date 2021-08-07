@@ -237,7 +237,8 @@ void be_code_patchjump(bfuncinfo *finfo, int jmp)
     patchlistaux(finfo, jmp, finfo->pc, finfo->pc);
 }
 
-
+/* Allocate new constant for value k */
+/* If k is NULL then we push `nil` value */
 static int newconst(bfuncinfo *finfo, bvalue *k)
 {
     int idx = be_vector_count(&finfo->kvec);
@@ -286,7 +287,7 @@ static int findconst(bfuncinfo *finfo, bexpdesc *e)
     return -1;
 }
 
-/* convert expdesc to constant and return constant index */
+/* convert expdesc to constant and return kreg index (either constant kindex or register number) */
 static int exp2const(bfuncinfo *finfo, bexpdesc *e)
 {
     int idx = findconst(finfo, e); /* does the constant already exist? */
@@ -353,6 +354,9 @@ static void code_closure(bfuncinfo *finfo, int idx, int dst)
     codeABx(finfo, OP_CLOSURE, dst, idx); /* load closure to register */
 }
 
+/* Given an integer, check if we should create a constant */
+/* True for values 0..3 and if there is room for kindex */
+/* This optimization makes code more compact for commonly used ints */
 static bbool constint(bfuncinfo *finfo, bint i)
 {
     /* cache common numbers */
