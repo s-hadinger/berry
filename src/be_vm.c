@@ -1054,8 +1054,8 @@ newframe: /* a new call frame */
             dispatch();
         }
         opcase(CALL): {
-            bvalue *var = RA();
-            int mode = 0, argc = IGET_RKB(ins);
+            bvalue *var = RA();  /* `var` is the register for the call followed by arguments */
+            int mode = 0, argc = IGET_RKB(ins);  /* B contains number of arguments pushed on stack */
         recall: /* goto: instantiation class and call constructor */
             switch (var_type(var)) {
             case NOT_METHOD:
@@ -1080,12 +1080,12 @@ newframe: /* a new call frame */
             }
             case BE_CLOSURE: {
                 bvalue *v, *end;
-                bproto *proto = var2cl(var)->proto;
-                push_closure(vm, var, proto->nstack, mode);
-                reg = vm->reg;
-                v = reg + argc;
-                end = reg + proto->argc;
-                for (; v < end; ++v) {
+                bproto *proto = var2cl(var)->proto;  /* get proto for closure */
+                push_closure(vm, var, proto->nstack, mode);  /* prepare stack for closure */
+                reg = vm->reg;  /* `reg` has changed, now new base register */
+                v = reg + argc;  /* end of provided arguments */
+                end = reg + proto->argc;  /* end of expected arguments */
+                for (; v < end; ++v) {  /* set all not provided arguments to nil */
                     var_setnil(v);
                 }
                 goto newframe;
