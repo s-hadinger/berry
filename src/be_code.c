@@ -78,10 +78,14 @@ static int codeABx(bfuncinfo *finfo, bopcode op, int a, int bx)
     return codeinst(finfo, ISET_OP(op) | ISET_RA(a) | ISET_Bx(bx));
 }
 
+/* Move value from register b to register a */
+/* Check the previous instruction to compact both instruction as one if possible */
+/* TODO make sure we don´t miss the update of the other register if optimized, add a comparison? */
+/* If b is a constant, add LDCONST or add MOVE otherwise */
 static void code_move(bfuncinfo *finfo, int a, int b)
 {
-    if (finfo->pc) {
-        binstruction *i = be_vector_end(&finfo->code);
+    if (finfo->pc) {  /* If not the first instruction of the function */
+        binstruction *i = be_vector_end(&finfo->code);  /* get the last instruction */
         bopcode op = IGET_OP(*i);
         if (op <= OP_LDNIL) { /* binop or unop */
             /* remove redundant MOVE instruction */
