@@ -640,7 +640,7 @@ static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
     init_exp(e, ETGLOBAL, idx);
     idx = be_code_nextreg(finfo, e);
     be_code_call(finfo, idx, 0);
-    e->type = ETLOCAL;
+    e->type = ETLOCAL;  /* declare as local to avoid being freed, will be changed to ETREG when completely initialized *\
 }
 
 static void list_nextmember(bparser *parser, bexpdesc *l)
