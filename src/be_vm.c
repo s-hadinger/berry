@@ -194,17 +194,17 @@ static void precall(bvm *vm, bvalue *func, int nstack, int mode)
     int expan = nstack + BE_STACK_FREE_MIN; /* `expan` is the minimum required space on the stack */
     if (vm->stacktop < func + expan) {  /* do we have too little space left on the stack? */
         size_t fpos = func - vm->stack;  /* compute offset of `func` from base stack, in case stack is reallocated and base address changes */
-        be_stack_expansion(vm, expan);  /* expand stack (vector object) */
+        be_stack_expansion(vm, expan);  /* expand stack (vector object), warning stack address changes */
         func = vm->stack + fpos;  /* recompute `func` address with new stack address */
     }
-    be_stack_push(vm, &vm->callstack, NULL);
-    cf = be_stack_top(&vm->callstack);
-    cf->func = func - mode;
-    cf->top = vm->top;
-    cf->reg = vm->reg;
-    vm->reg = func + 1;
-    vm->top = vm->reg + nstack;
-    vm->cf = cf;
+    be_stack_push(vm, &vm->callstack, NULL);  /* push a NULL value on callstack */
+    cf = be_stack_top(&vm->callstack);  /* get address of new callframe at top of callstack */
+    cf->func = func - mode;  /* TODO why -1 for function? */
+    cf->top = vm->top;  /* save previous stack top */
+    cf->reg = vm->reg;  /* save previous stack base */
+    vm->reg = func + 1;  /* new stack base is right after function */
+    vm->top = vm->reg + nstack; /* new stack top is ? TODO */
+    vm->cf = cf;  /* set new current callframe */
 }
 
 static void push_closure(bvm *vm, bvalue *func, int nstack, int mode)
