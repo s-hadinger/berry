@@ -514,6 +514,8 @@ void be_code_binop(bfuncinfo *finfo, int op, bexpdesc *e1, bexpdesc *e2)
     }
 }
 
+/* Apply unary operator and return register number */
+/* If input is register, change in place or allocate new register */
 static void unaryexp(bfuncinfo *finfo, bopcode op, bexpdesc *e)
 {
     int src = exp2anyreg(finfo, e);
@@ -523,6 +525,9 @@ static void unaryexp(bfuncinfo *finfo, bopcode op, bexpdesc *e)
     e->v.idx = dst;
 }
 
+/* Apply not to conditional expression */
+/* If literal compute the value */
+/* Or invert t/f subexpressions */
 static void code_not(bexpdesc *e)
 {
     switch (e->type) {
@@ -542,6 +547,7 @@ static void code_not(bexpdesc *e)
     e->type = ETBOOL;
 }
 
+/* Negative value of literal or emit NEG opcode */
 static int code_neg(bfuncinfo *finfo, bexpdesc *e)
 {
     switch (e->type) {
@@ -555,6 +561,7 @@ static int code_neg(bfuncinfo *finfo, bexpdesc *e)
     return 0;
 }
 
+/* Bit flip of literal or emit FLIP opcode */
 static int code_flip(bfuncinfo *finfo, bexpdesc *e)
 {
     switch (e->type) {
@@ -567,6 +574,7 @@ static int code_flip(bfuncinfo *finfo, bexpdesc *e)
     return 0;
 }
 
+/* Apply unary operator: not, neg or bitflip */
 int be_code_unop(bfuncinfo *finfo, int op, bexpdesc *e)
 {
     switch (op) {
