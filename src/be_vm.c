@@ -477,9 +477,9 @@ static void vm_exec(bvm *vm)
     vm->cf->status |= BASE_FRAME;
 newframe: /* a new call frame */
     be_assert(var_isclosure(vm->cf->func));
-    clos = var_toobj(vm->cf->func);
-    ktab = clos->proto->ktab;
-    reg = vm->reg;
+    clos = var_toobj(vm->cf->func);  /* `clos` is the current function/closure */
+    ktab = clos->proto->ktab;  /* `ktab` is the current constant table */
+    reg = vm->reg;  /* `reg` is the current stack base for the callframe */
     vm_exec_loop() {
         opcase(LDNIL): {
             var_setnil(RA());
