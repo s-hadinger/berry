@@ -426,7 +426,7 @@ static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 static int exp2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
     int reg = var2reg(finfo, e, dst);
-    if (hasjump(e)) {
+    if (hasjump(e)) { /* if conditional expression */
         int pcf = NO_JUMP;  /* position of an eventual LOAD false */
         int pct = NO_JUMP;  /* position of an eventual LOAD true */
         int jpt = appendjump(finfo, jumpboolop(e, 1), e);
@@ -464,14 +464,15 @@ static int codedestreg(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
     return dst;
 }
 
+/* compute binary expression and update e1 as result */
 static void binaryexp(bfuncinfo *finfo, bopcode op, bexpdesc *e1, bexpdesc *e2)
 {
-    int src1 = exp2anyreg(finfo, e1);
-    int src2 = exp2anyreg(finfo, e2);
-    int dst = codedestreg(finfo, e1, e2);
-    codeABC(finfo, op, dst, src1, src2);
+    int src1 = exp2anyreg(finfo, e1);  /* constant or existing register or new register */
+    int src2 = exp2anyreg(finfo, e2);  /* constant or existing register or new register */
+    int dst = codedestreg(finfo, e1, e2);  /* compute target register */
+    codeABC(finfo, op, dst, src1, src2);  /* emit operation */
     e1->type = ETREG;
-    e1->v.idx = dst;
+    e1->v.idx = dst; /* update register as output */
 }
 
 void be_code_prebinop(bfuncinfo *finfo, int op, bexpdesc *e)
