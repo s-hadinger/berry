@@ -103,6 +103,8 @@ static void code_move(bfuncinfo *finfo, int a, int b)
     }
 }
 
+/* Free register at top (checks that it´s a register) */
+/* Warning: the register must be at top of stack */
 static void free_expreg(bfuncinfo *finfo, bexpdesc *e)
 {
     /* release temporary register */
@@ -112,7 +114,7 @@ static void free_expreg(bfuncinfo *finfo, bexpdesc *e)
 }
 
 /* Allocate `count` new registers on the stack and uptade proto´s max nstack accordingly */
-/* deallocate is simpler and handled by a macro */
+/* Note: deallocate is simpler and handled by a macro */
 static void allocstack(bfuncinfo *finfo, int count)
 {
     int nstack = finfo->freereg + count;
@@ -234,6 +236,7 @@ void be_code_patchjump(bfuncinfo *finfo, int jmp)
 {
     patchlistaux(finfo, jmp, finfo->pc, finfo->pc);
 }
+
 
 static int newconst(bfuncinfo *finfo, bvalue *k)
 {
