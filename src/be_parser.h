@@ -25,8 +25,8 @@ typedef enum {
     ETUPVAL,
     ETMEMBER,
     ETINDEX,
-    ETREG,
-    ETNGLOBAL
+    ETREG,      /* temporary register, can be freed if top of stack */
+    ETNGLOBAL   /* named global */
 } exptype_t;
 
 typedef struct {
