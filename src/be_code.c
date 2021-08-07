@@ -367,6 +367,10 @@ static bbool constint(bfuncinfo *finfo, bint i)
     return bfalse;
 }
 
+/* Compute variable from an expdesc */
+/* Return constant index, or existing register or fallback to dst */
+/* If dst is `freereg`, the register is allocated */
+/* TODO member or index change dst, why? */
 static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
     be_assert(e != NULL);
@@ -418,6 +422,7 @@ static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
     return dst;
 }
 
+/* TODO */
 static int exp2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
     int reg = var2reg(finfo, e, dst);
@@ -438,6 +443,10 @@ static int exp2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
     return reg;
 }
 
+/* Select dest registers from both expressions */
+/* If one of them is already a register, keep it */
+/* TODO if e1 or e2 are registers, we keep the lowest and free the highest (that must be at top) */
+/* If none is a register, allocate a new one */
 static int codedestreg(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
 {
     int dst, con1 = e1->type == ETREG, con2 = e2->type == ETREG;
