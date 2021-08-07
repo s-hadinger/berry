@@ -619,24 +619,28 @@ static void setsfxvar(bfuncinfo *finfo, bopcode op, bexpdesc *e1, int src)
     codeABC(finfo, op, obj, e1->v.ss.idx, src);
 }
 
+/* Assign expr e2 to e1 */
+/* e1 must be in a register and have a valid idx */
+/* return 1 if assignment was possible, 0 if type is not compatible */
 int be_code_setvar(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
 {
     int src = exp2reg(finfo, e2,
-        e1->type == ETLOCAL ? e1->v.idx : finfo->freereg);
+        e1->type == ETLOCAL ? e1->v.idx : finfo->freereg); /* Convert e2 to kreg */
+        /* If e1 is a local variable, use the register */
 
     if (e1->type != ETLOCAL || e1->v.idx != src) {
-        free_expreg(finfo, e2); /* free source (only ETREG) */
+        free_expreg(finfo, e2); /* free source (only ETREG) */ /* TODO */
     }
     switch (e1->type) {
     case ETLOCAL: /* It can't be ETREG. */
         if (e1->v.idx != src) {
-            code_move(finfo, e1->v.idx, src);
+            code_move(finfo, e1->v.idx, src); /* do explicit move only if needed */
         }
         break;
-    case ETGLOBAL: /* store to grobal R(A) -> G(Bx) */
+    case ETGLOBAL: /* store to grobal R(A) -> G(Bx) by global index */
         setsupvar(finfo, OP_SETGBL, e1, src);
         break;
-    case ETNGLOBAL: /* store to grobal R(A) -> G(Bx) */
+    case ETNGLOBAL: /* store to global R(A) -> G(Bx) by name */
         setbgblvar(finfo, OP_SETNGBL, e1, src);
         break;
     case ETUPVAL:
