@@ -149,6 +149,8 @@ static void call_error(bvm *vm, bvalue *v)
         "'%s' value is not callable", be_vtype2str(v));
 }
 
+/* Check that the return value is bool or raise an exception */
+/* `obj` and `method` are only passed for error reporting */
 static void check_bool(bvm *vm, binstance *obj, const char *method)
 {
     if (!var_isbool(vm->top)) {
@@ -182,14 +184,18 @@ static void do_linehook(bvm *vm)
 }
 #endif
 
+/* Prepare the stack for the function/method call */
+/* `func` is a pointer to the function/method on the stack, it contains the closure before call and the result after the call */
+/* `nstackˋ is the stack depth used by the function (determined by compiler), we add BE_STACK_FREE_MIN as a safety margin */
+/* `mode` is 0 for a method, 1 for a function */
 static void precall(bvm *vm, bvalue *func, int nstack, int mode)
 {
     bcallframe *cf;
-    int expan = nstack + BE_STACK_FREE_MIN;
-    if (vm->stacktop < func + expan) {
-        size_t fpos = func - vm->stack;
-        be_stack_expansion(vm, expan);
-        func = vm->stack + fpos;
+    int expan = nstack + BE_STACK_FREE_MIN; /* `expan` is the minimum required space on the stack */
+    if (vm->stacktop < func + expan) {  /* do we have too little space left on the stack? */
+        size_t fpos = func - vm->stack;  /* compute offset of `func` from base stack, in case stack is reallocated and base address changes */
+        be_stack_expansion(vm, expan);  /* expand stack (vector object) */
+        func = vm->stack + fpos;  /* recompute `func` address with new stack address */
     }
     be_stack_push(vm, &vm->callstack, NULL);
     cf = be_stack_top(&vm->callstack);
