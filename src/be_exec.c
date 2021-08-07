@@ -324,6 +324,7 @@ bvalue* be_incrtop(bvm *vm)
 }
 #endif
 
+/* TODO what is the difference with be_stack_push? */
 void be_stackpush(bvm *vm)
 {
     /* make sure there is enough stack space */
