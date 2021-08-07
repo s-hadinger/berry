@@ -207,6 +207,8 @@ static void precall(bvm *vm, bvalue *func, int nstack, int mode)
     vm->cf = cf;  /* set new current callframe */
 }
 
+/* Prepare call of closure, setting the instruction pointer (ip) */
+/* mode is 0 for method, 1 for function */
 static void push_closure(bvm *vm, bvalue *func, int nstack, int mode)
 {
     bclosure *cl = var_toobj(func);
