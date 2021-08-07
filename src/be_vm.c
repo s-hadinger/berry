@@ -203,7 +203,7 @@ static void precall(bvm *vm, bvalue *func, int nstack, int mode)
     cf->top = vm->top;  /* save previous stack top */
     cf->reg = vm->reg;  /* save previous stack base */
     vm->reg = func + 1;  /* new stack base is right after function */
-    vm->top = vm->reg + nstack; /* new stack top is ? TODO */
+    vm->top = vm->reg + nstack; /* new stack top is above the registers used by the function, so we don´t mess with them */
     vm->cf = cf;  /* set new current callframe */
 }
 
