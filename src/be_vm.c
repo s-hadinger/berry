@@ -28,14 +28,14 @@
 #define vm_error(vm, except, ...) \
     be_raise(vm, except, be_pushfstring(vm, __VA_ARGS__))
 
-#define RA()   (reg + IGET_RA(ins))
-#define RKB()  ((isKB(ins) ? ktab : reg) + KR2idx(IGET_RKB(ins)))
-#define RKC()  ((isKC(ins) ? ktab : reg) + KR2idx(IGET_RKC(ins)))
+#define RA()   (reg + IGET_RA(ins))  /* Get value of register A */
+#define RKB()  ((isKB(ins) ? ktab : reg) + KR2idx(IGET_RKB(ins)))  /* Get value of register or constant B */
+#define RKC()  ((isKC(ins) ? ktab : reg) + KR2idx(IGET_RKC(ins)))  /* Get value of register or constant C */
 
-#define var2cl(_v)          cast(bclosure*, var_toobj(_v))
-#define var2real(_v)        (var_isreal(_v) ? (_v)->v.r : (breal)(_v)->v.i)
-#define val2bool(v)         ((v) ? btrue : bfalse)
-#define ibinop(op, a, b)    ((a)->v.i op (b)->v.i)
+#define var2cl(_v)          cast(bclosure*, var_toobj(_v))  /* cast var to closure */
+#define var2real(_v)        (var_isreal(_v) ? (_v)->v.r : (breal)(_v)->v.i)  /* get var as real or convert to real if integer */
+#define val2bool(v)         ((v) ? btrue : bfalse)  /* get var as bool (trur if non zero) */
+#define ibinop(op, a, b)    ((a)->v.i op (b)->v.i)  /* apply binary operator to both arguments as integers */
 
 #if BE_USE_DEBUG_HOOK
   #define DEBUG_HOOK() \
