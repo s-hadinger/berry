@@ -20,7 +20,7 @@ typedef enum {
     ETSTRING,
     ETPROTO,
     ETCONST,
-    ETLOCAL,
+    ETLOCAL,    /* local variable, allocated until end of scope */
     ETGLOBAL,
     ETUPVAL,
     ETMEMBER,
