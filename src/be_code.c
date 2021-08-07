@@ -629,7 +629,7 @@ int be_code_setvar(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
         /* If e1 is a local variable, use the register */
 
     if (e1->type != ETLOCAL || e1->v.idx != src) {
-        free_expreg(finfo, e2); /* free source (only ETREG) */ /* TODO */
+        free_expreg(finfo, e2); /* free source (checks only ETREG) */ /* TODO e2 is at top */
     }
     switch (e1->type) {
     case ETLOCAL: /* It can't be ETREG. */
