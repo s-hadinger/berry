@@ -627,6 +627,8 @@ static void lambda_expr(bparser *parser, bexpdesc *e)
     be_stackpop(parser->vm, 1);
 }
 
+/* Instanciate a builtin type by name */
+/* Allocates a new register for the value, and call empty constructor */
 static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
 {
     int idx;

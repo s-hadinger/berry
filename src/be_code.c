@@ -107,6 +107,8 @@ static void free_expreg(bfuncinfo *finfo, bexpdesc *e)
     }
 }
 
+/* Allocate `count` new registers on the stack and uptade proto´s max nstack accordingly */
+/* deallocate is simpler and handled by a macro */
 static void allocstack(bfuncinfo *finfo, int count)
 {
     int nstack = finfo->freereg + count;
@@ -118,6 +120,7 @@ static void allocstack(bfuncinfo *finfo, int count)
     }
 }
 
+/* Allocate `count` registers at top of stack, update stack accordingly */
 int be_code_allocregs(bfuncinfo *finfo, int count)
 {
     int base = finfo->freereg;
@@ -619,6 +622,9 @@ int be_code_setvar(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
     return 0;
 }
 
+/* Get the expdesc as a register */
+/* if already in a register, use the existing register */
+/* if local or const, allocate a new register and copy value */
 int be_code_nextreg(bfuncinfo *finfo, bexpdesc *e)
 {
     int dst = finfo->freereg;
@@ -642,6 +648,10 @@ int be_code_getmethod(bfuncinfo *finfo, bexpdesc *e)
     return dst;
 }
 
+/* Generate a CALL instruction at base register with argc consecutive values */
+/* i.e. arg1 is base+1... */
+/* Important: argc registers are freed upon call, which are supposed to be registers above base */
+/* TODO check that there are no more than `argc` registers above ‘base` on stack */
 void be_code_call(bfuncinfo *finfo, int base, int argc)
 {
     codeABC(finfo, OP_CALL, base, argc, 0);
