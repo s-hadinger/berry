@@ -286,10 +286,11 @@ static int findconst(bfuncinfo *finfo, bexpdesc *e)
     return -1;
 }
 
+/* convert expdesc to constant and return constant index */
 static int exp2const(bfuncinfo *finfo, bexpdesc *e)
 {
-    int idx = findconst(finfo, e);
-    if (idx == -1) {
+    int idx = findconst(finfo, e); /* does the constant already exist? */
+    if (idx == -1) { /* if not add it */
         bvalue k;
         switch (e->type) {
         case ETINT:
@@ -304,16 +305,16 @@ static int exp2const(bfuncinfo *finfo, bexpdesc *e)
             k.type = BE_STRING;
             k.v.s = e->v.s;
             break;
-        default:
+        default: /* all other values are filled later */
             break;
         }
-        idx = newconst(finfo, &k);
+        idx = newconst(finfo, &k);  /* create new constant */
     }
-    if (idx < 256) {
-        e->type = ETCONST;
+    if (idx < 256) {  /* if constant number fits in KB or KC */
+        e->type = ETCONST;  /* new type is constant by index */
         e->v.idx = setK(idx);
     } else { /* index value is too large */
-        e->type = ETREG;
+        e->type = ETREG;  /* does not fit in compact mode, allocate an explicit register and emit LDCONTS */
         e->v.idx = be_code_allocregs(finfo, 1);
         codeABx(finfo, OP_LDCONST, e->v.idx, idx);
     }
