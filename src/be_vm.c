@@ -1088,7 +1088,7 @@ newframe: /* a new call frame */
                 for (; v < end; ++v) {  /* set all not provided arguments to nil */
                     var_setnil(v);
                 }
-                goto newframe;
+                goto newframe;  /* continue execution of the closure */
             }
             case BE_NTVCLOS: {
                 bntvclos *f = var_toobj(var);
