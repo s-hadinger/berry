@@ -520,8 +520,9 @@ static void singlevar(bparser *parser, bexpdesc *var)
     }
 }
 
-/* Parse function or method variable list */
-/* Create an implicit local variable for each argument */
+/* Parse function or method definition variable list */
+/* Create an implicit local variable for each argument starting at R0 */
+/* Update function proto argc to the expected number or arguments */
 /* Raise an exception if multiple arguments have the same name */
 static void func_varlist(bparser *parser)
 {
