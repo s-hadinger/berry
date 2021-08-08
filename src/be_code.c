@@ -490,6 +490,8 @@ void be_code_prebinop(bfuncinfo *finfo, int op, bexpdesc *e)
     }
 }
 
+/* Apply binary operator `op` to e1 and e2, result in e1 */
+/* There is always a new temp register allocated to handle the second argument so you must free it on exit TODO */
 void be_code_binop(bfuncinfo *finfo, int op, bexpdesc *e1, bexpdesc *e2)
 {
     switch (op) {
