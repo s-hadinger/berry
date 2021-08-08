@@ -652,7 +652,7 @@ static void list_nextmember(bparser *parser, bexpdesc *l)
     expr(parser, &e); /* value */
     check_var(parser, &e); /* check that we don´t have an unknown symbol */
     be_code_binop(finfo, OptConnect, &v, &e); /* add it to list with CONNECT */
-    be_code_freeregs(finfo, 1);
+    be_code_freeregs(finfo, 1);  /* `expr` always allocates a new temp register so free it now */
 }
 
 static void map_nextmember(bparser *parser, bexpdesc *l)
