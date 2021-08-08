@@ -979,7 +979,7 @@ static void sub_expr(bparser *parser, bexpdesc *e, int prio)
         init_exp(&e2, ETVOID, 0);
         sub_expr(parser, &e2, binary_op_prio(op));  /* parse right side */
         check_var(parser, &e2);  /* check if valid */
-        be_code_binop(finfo, op, e, &e2); /* encode binary op */
+        be_code_binop(finfo, op, e, &e2); /* encode binary op */ /* TODO should we free some regs here? */
         op = get_binop(parser);  /* is there a following binop? */
     }
     if (prio == ASSIGN_OP_PRIO) {
