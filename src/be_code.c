@@ -863,7 +863,7 @@ void be_code_raise(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
         int src2 = e2 ? exp2anyreg(finfo, e2) : 0;
         codeABC(finfo, OP_RAISE, e2 != NULL, src1, src2);
     } else {
-        codeABC(finfo, OP_RAISE, 2, 0, 0);
+        codeABC(finfo, OP_RAISE, 2, 0, 0); /* rethrow the current exception with parameters already on top of stack */
     }
     /* release the register occupied by the expression */
     free_expreg(finfo, e1);
