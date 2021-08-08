@@ -571,7 +571,7 @@ newframe: /* a new call frame */
             if (var_isint(a) && var_isint(b)) {
                 var_setint(dst, ibinop(+, a, b));
             } else if (var_isnumber(a) && var_isnumber(b)) {
-                breal x = var2real(a), y = var2real(b);
+                breal x = var2real(a), y = var2real(b);o
                 var_setreal(dst, x + y);
             } else if (var_isstr(a) && var_isstr(b)) { /* strcat */
                 bstring *s = be_strcat(vm, var_tostr(a), var_tostr(b));
@@ -1027,7 +1027,7 @@ newframe: /* a new call frame */
             dispatch();
         }
         opcase(RAISE): {
-            if (IGET_RA(ins) < 2) {
+            if (IGET_RA(ins) < 2) {  /* A==2 means no arguments are passed to RAISE, i.e. rethrow with current exception */
                 bvalue *top = vm->top;
                 top[0] = *RKB(); /* push the exception value to top */
                 if (IGET_RA(ins)) { /* has exception argument? */
