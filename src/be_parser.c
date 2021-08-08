@@ -748,6 +748,9 @@ static void call_expr(bparser *parser, bexpdesc *e)
     }
 }
 
+/* Parse member expression */
+/* Generates an ETMEMBER object that is materialized later into GETMBR, GETMET or SETMBR */
+/* TODO place here accessor by variable (string) instead of string literal */
 static void member_expr(bparser *parser, bexpdesc *e)
 {
     bstring *str;
