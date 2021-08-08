@@ -661,12 +661,12 @@ static void map_nextmember(bparser *parser, bexpdesc *l)
     bexpdesc e, v = *l;
     bfuncinfo *finfo = parser->finfo;
     expr(parser, &e); /* key */
-    check_var(parser, &e);
-    be_code_index(finfo, &v, &e);
+    check_var(parser, &e);  /* check if value is valid */
+    be_code_index(finfo, &v, &e);  /* package as `v` as INDEX suffix for value `e` */
     match_token(parser, OptColon); /* ':' */
-    expr(parser, &e); /* value */
-    check_var(parser, &e);
-    be_code_setvar(finfo, &v, &e);
+    expr(parser, &e); /* value in `e` */
+    check_var(parser, &e);  /* check if value is correct */
+    be_code_setvar(finfo, &v, &e);  /* set suffi  INDEX value to e */
 }
 
 static void list_expr(bparser *parser, bexpdesc *e)
