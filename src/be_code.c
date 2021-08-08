@@ -113,7 +113,7 @@ static void free_expreg(bfuncinfo *finfo, bexpdesc *e)
     }
 }
 
-/* Allocate `count` new registers on the stack and uptade proto´s max nstack accordingly */
+/* Privat. Allocate `count` new registers on the stack and uptade proto´s max nstack accordingly */
 /* Note: deallocate is simpler and handled by a macro */
 static void allocstack(bfuncinfo *finfo, int count)
 {
@@ -238,7 +238,7 @@ void be_code_patchjump(bfuncinfo *finfo, int jmp)
 }
 
 /* Allocate new constant for value k */
-/* If k is NULL then we push `nil` value */
+/* If k is NULL then push `nil` value */
 static int newconst(bfuncinfo *finfo, bvalue *k)
 {
     int idx = be_vector_count(&finfo->kvec);
@@ -369,7 +369,7 @@ static bbool constint(bfuncinfo *finfo, bint i)
 
 /* Compute variable from an expdesc */
 /* Return constant index, or existing register or fallback to dst */
-/* If dst is `freereg`, the register is allocated */
+/* At exit, If dst is `freereg`, the register is allocated */
 /* TODO member or index change dst, why? */
 static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
@@ -445,8 +445,9 @@ static int exp2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 
 /* Select dest registers from both expressions */
 /* If one of them is already a register, keep it */
-/* TODO if e1 or e2 are registers, we keep the lowest and free the highest (that must be at top) */
+/* If e1 or e2 are registers, we keep the lowest and free the highest (that must be at top) */
 /* If none is a register, allocate a new one */
+/* Returns the destination register, guaranteed to be ETREG */
 static int codedestreg(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
 {
     int dst, con1 = e1->type == ETREG, con2 = e2->type == ETREG;
@@ -465,6 +466,7 @@ static int codedestreg(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
 }
 
 /* compute binary expression and update e1 as result */
+/* On exit, e1 is guaranteed to be ETREG, which may have been allocated */
 static void binaryexp(bfuncinfo *finfo, bopcode op, bexpdesc *e1, bexpdesc *e2)
 {
     int src1 = exp2anyreg(finfo, e1);  /* constant or existing register or new register */
