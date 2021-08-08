@@ -768,6 +768,8 @@ void be_code_ret(bfuncinfo *finfo, bexpdesc *e)
     }
 }
 
+/* Package a suffix object from `c` with key `k` */
+/* Both expdesc are materialized in kregs */
 static void package_suffix(bfuncinfo *finfo, bexpdesc *c, bexpdesc *k)
 {
     int key = exp2anyreg(finfo, k);
@@ -776,17 +778,20 @@ static void package_suffix(bfuncinfo *finfo, bexpdesc *c, bexpdesc *k)
     c->v.ss.idx = key;
 }
 
+/* TODO too simple? */
 int be_code_nglobal(bfuncinfo *finfo, bexpdesc *k)
 {
     return exp2anyreg(finfo, k);
 }
 
+/* Package a MEMBER suffix object from `c` with key `k` */
 void be_code_member(bfuncinfo *finfo, bexpdesc *c, bexpdesc *k)
 {
     package_suffix(finfo, c, k);
     c->type = ETMEMBER;
 }
 
+/* Package a INDEX suffix object from `c` with key `k` */
 void be_code_index(bfuncinfo *finfo, bexpdesc *c, bexpdesc *k)
 {
     package_suffix(finfo, c, k);
@@ -797,15 +802,15 @@ void be_code_class(bfuncinfo *finfo, bexpdesc *dst, bclass *c)
 {
     int src;
     bvalue var;
-    var_setclass(&var, c);
-    src = newconst(finfo, &var);
-    if (dst->type == ETLOCAL) {
+    var_setclass(&var, c);  /* new var of CLASS type */
+    src = newconst(finfo, &var);  /* allocate a new constant and return kreg */
+    if (dst->type == ETLOCAL) {  /* if target is a local variable, just assign */
         codeABx(finfo, OP_LDCONST, dst->v.idx, src);
-    } else {
+    } else {  /* otherwise set as global with same name as class name */
         codeABx(finfo, OP_LDCONST, finfo->freereg, src);
         codeABx(finfo, OP_SETGBL, finfo->freereg, dst->v.idx);
     }
-    codeABx(finfo, OP_CLASS, 0, src);
+    codeABx(finfo, OP_CLASS, 0, src);  /* emit CLASS opcode to register class */
 }
 
 void be_code_setsuper(bfuncinfo *finfo, bexpdesc *c, bexpdesc *s)
