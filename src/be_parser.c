@@ -641,9 +641,11 @@ static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
     init_exp(e, ETGLOBAL, idx);
     idx = be_code_nextreg(finfo, e);
     be_code_call(finfo, idx, 0);
-    e->type = ETLOCAL;  /* declare as local to avoid being freed, will be changed to ETREG when completely initialized *\
+    e->type = ETLOCAL;  /* declare as local to avoid being freed, will be changed to ETREG when completely initialized */
 }
 
+/* Parse next member within a list */
+/* `l` contains the current list. The expr is evaluated and added to the list */
 static void list_nextmember(bparser *parser, bexpdesc *l)
 {
     bexpdesc e, v = *l;
@@ -670,14 +672,14 @@ static void map_nextmember(bparser *parser, bexpdesc *l)
 static void list_expr(bparser *parser, bexpdesc *e)
 {
     /* '[' {expr ','} [expr] ']' */
-    new_primtype(parser, "list", e); /* new list */
+    new_primtype(parser, "list", e); /* new list, created as LOCAL first */
     while (next_type(parser) != OptRSB) {
         list_nextmember(parser, e);
         if (!match_skip(parser, OptComma)) { /* ',' */
             break;
         }
     }
-    e->type = ETREG;
+    e->type = ETREG; /* then turned to REG */
     match_token(parser, OptRSB); /* skip ']' */
 }
 
