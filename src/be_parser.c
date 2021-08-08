@@ -732,6 +732,7 @@ static void call_expr(bparser *parser, bexpdesc *e)
     } else {
         base = be_code_nextreg(finfo, e); /* allocate a new base reg if not at top already */
     }
+    /* base is always taken at top of freereg and allocates 1 reg for function and 2 regs for method */
     scan_next_token(parser); /* skip '(' */
     if (next_type(parser) != OptRBK) {
         argc = exprlist(parser, &args);
