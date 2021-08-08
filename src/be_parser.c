@@ -697,14 +697,16 @@ static void map_expr(bparser *parser, bexpdesc *e)
     match_token(parser, OptRBR); /* skip '}' */
 }
 
+/* push each argument as new reg and return number of args */
+/* TODO `e` is ignored by caller */
 static int exprlist(bparser *parser, bexpdesc *e)
 {
     bfuncinfo *finfo = parser->finfo;
     int n = 1;
     /* expr { ',' expr } */
-    expr(parser, e);
-    check_var(parser, e);
-    be_code_nextreg(finfo, e);
+    expr(parser, e);  /* parse expr */
+    check_var(parser, e);  /* check if valid */
+    be_code_nextreg(finfo, e);  /* move result to next reg */
     while (match_skip(parser, OptComma)) { /* ',' */
         expr(parser, e);
         check_var(parser, e);
@@ -734,8 +736,8 @@ static void call_expr(bparser *parser, bexpdesc *e)
     }
     /* base is always taken at top of freereg and allocates 1 reg for function and 2 regs for method */
     scan_next_token(parser); /* skip '(' */
-    if (next_type(parser) != OptRBK) {
-        argc = exprlist(parser, &args);
+    if (next_type(parser) != OptRBK) {  /* if arg list is not empty */
+        argc = exprlist(parser, &args);  /* push each argument as new reg and return number of args */
     }
     match_token(parser, OptRBK); /* skip ')' */
     argc += ismember;   /* if method there is an additional implicit arg */
