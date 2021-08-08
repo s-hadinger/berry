@@ -471,7 +471,7 @@ static void binaryexp(bfuncinfo *finfo, bopcode op, bexpdesc *e1, bexpdesc *e2)
 {
     int src1 = exp2anyreg(finfo, e1);  /* constant or existing register or new register */
     int src2 = exp2anyreg(finfo, e2);  /* constant or existing register or new register */
-    int dst = codedestreg(finfo, e1, e2);  /* compute target register */
+    int dst = codedestreg(finfo, e1, e2);  /* compute target register' guaranteed to be ETREG */
     codeABC(finfo, op, dst, src1, src2);  /* emit operation */
     e1->type = ETREG;
     e1->v.idx = dst; /* update register as output */
@@ -493,7 +493,7 @@ void be_code_prebinop(bfuncinfo *finfo, int op, bexpdesc *e)
 }
 
 /* Apply binary operator `op` to e1 and e2, result in e1 */
-/* There is always a new temp register allocated to handle the second argument so you must free it on exit TODO */
+/* TODO e1 isnguaranteed to be ETREG */
 void be_code_binop(bfuncinfo *finfo, int op, bexpdesc *e1, bexpdesc *e2)
 {
     switch (op) {
