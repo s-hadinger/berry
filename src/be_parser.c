@@ -97,7 +97,7 @@ static void match_notoken(bparser *parser, btokentype type)
     }
 }
 
-/* check that the token is a symbol (ex variable name) or raise an exception */
+/* check that if the expdesc is a symbol, it is avalid one or raise an exception */
 static void check_symbol(bparser *parser, bexpdesc *e)
 {
     if (e->type == ETVOID && e->v.s == NULL) { /* error when token is not a symbol */
@@ -106,8 +106,7 @@ static void check_symbol(bparser *parser, bexpdesc *e)
     }
 }
 
-/* check that the token looks like a variable name and that the variable 
-   already exists or raise an exception that the variable is unknown */
+/* check that the value in `e` is valid for a variable, i.e. conatins a value or a valid symbol */
 static void check_var(bparser *parser, bexpdesc *e)
 {
     check_symbol(parser, e); /* check the token is a symbol */
@@ -651,8 +650,8 @@ static void list_nextmember(bparser *parser, bexpdesc *l)
     bexpdesc e, v = *l;
     bfuncinfo *finfo = parser->finfo;
     expr(parser, &e); /* value */
-    check_var(parser, &e);
-    be_code_binop(finfo, OptConnect, &v, &e);
+    check_var(parser, &e); /* check that we don´t have an unknown symbol */
+    be_code_binop(finfo, OptConnect, &v, &e); /* add it to list with CONNECT */
     be_code_freeregs(finfo, 1);
 }
 
