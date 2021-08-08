@@ -954,39 +954,42 @@ static void cond_expr(bparser *parser, bexpdesc *e)
 static void sub_expr(bparser *parser, bexpdesc *e, int prio)
 {
     bfuncinfo *finfo = parser->finfo;
-    btokentype op = get_unary_op(parser);
-    if (op != OP_NOT_UNARY) {
+    btokentype op = get_unary_op(parser);  /* check if first token in unary op */
+    if (op != OP_NOT_UNARY) {  /* unary op found */
         int line, res;
-        scan_next_token(parser);
-        line = parser->lexer.linenumber;
-        sub_expr(parser, e, UNARY_OP_PRIO);
-        check_var(parser, e);
-        res = be_code_unop(finfo, op, e);
+        scan_next_token(parser);  /* move to next token */
+        line = parser->lexer.linenumber;  /* remember line number for error reporting */
+        sub_expr(parser, e, UNARY_OP_PRIO);  /* parse subexpr with new prio */
+        check_var(parser, e);  /* check that the value is ok */
+        res = be_code_unop(finfo, op, e);  /* apply unary op with optimizations if the token is a value */
         if (res) { /* encode unary op */
             parser->lexer.linenumber = line;
             push_error(parser, "wrong type argument to unary '%s'",
                 res == 1 ? "negative" : "bit-flip");
         }
     } else {
-        suffix_expr(parser, e);
+        suffix_expr(parser, e);  /* parse left part of binop TODO */
     }
-    op = get_binop(parser);
-    while (op != OP_NOT_BINARY && prio > binary_op_prio(op)) {
+    op = get_binop(parser);  /* check if binop */
+    while (op != OP_NOT_BINARY && prio > binary_op_prio(op)) {  /* is binop applicable */
         bexpdesc e2;
-        check_var(parser, e);
-        scan_next_token(parser);
+        check_var(parser, e);  /* check that left part is valid */
+        scan_next_token(parser);  /* move to next token */
         be_code_prebinop(finfo, op, e); /* and or */
         init_exp(&e2, ETVOID, 0);
-        sub_expr(parser, &e2, binary_op_prio(op));
-        check_var(parser, &e2);
+        sub_expr(parser, &e2, binary_op_prio(op));  /* parse right side */
+        check_var(parser, &e2);  /* check if valid */
         be_code_binop(finfo, op, e, &e2); /* encode binary op */
-        op = get_binop(parser);
+        op = get_binop(parser);  /* is there a following binop? */
     }
     if (prio == ASSIGN_OP_PRIO) {
-        cond_expr(parser, e);
+        cond_expr(parser, e);  /* TODO */
     }
 }
 
+/* Parse new expression and return value in `e` (overwritten) */
+/* Initializes an empty expdes  and parse subexpr */
+/* Always allocates a new temp register at top of freereg */
 static void expr(bparser *parser, bexpdesc *e)
 {
     init_exp(e, ETVOID, 0);
