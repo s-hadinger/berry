@@ -629,6 +629,7 @@ static void lambda_expr(bparser *parser, bexpdesc *e)
 
 /* Instanciate a builtin type by name */
 /* Allocates a new register for the value, and call empty constructor */
+/* TODO is allocated as LOCAL and must be changed to REG when completed */
 static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
 {
     int idx;
@@ -640,7 +641,7 @@ static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
     init_exp(e, ETGLOBAL, idx);
     idx = be_code_nextreg(finfo, e);
     be_code_call(finfo, idx, 0);
-    e->type = ETLOCAL;  /* declare as local to avoid being freed, will be changed to ETREG when completely initialized */
+    e->type = ETLOCAL;  /* declare as local, will be changed to ETREG when completely initialized */
 }
 
 /* Parse next member within a list */
@@ -652,7 +653,7 @@ static void list_nextmember(bparser *parser, bexpdesc *l)
     expr(parser, &e); /* value */
     check_var(parser, &e); /* check that we don´t have an unknown symbol */
     be_code_binop(finfo, OptConnect, &v, &e); /* add it to list with CONNECT */
-    be_code_freeregs(finfo, 1);  /* binary op always allocates a new temp register so free it now */
+    be_code_freeregs(finfo, 1);  /* since left arg is LOCAL, an ETREG was allocated. Free it */
 }
 
 static void map_nextmember(bparser *parser, bexpdesc *l)
