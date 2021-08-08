@@ -813,6 +813,12 @@ void be_code_setsuper(bfuncinfo *finfo, bexpdesc *c, bexpdesc *s)
     free_expreg(finfo, s);
 }
 
+/* Emit IMPORT opcode for import module */
+/* `m` is module name, is copied to register if not already */
+/* `v` is destination where the imported module is stored */
+/* If destination is a local variable, it is the destination of the IMPORT opcode */
+/* otherwise the value is copied to a temporary register and stored to the destination */
+/* TODO is this optilization useful, isn´t it done anyways by be_code_move optim? */
 void be_code_import(bfuncinfo *finfo, bexpdesc *m, bexpdesc *v)
 {
     int dst, src = exp2anyreg(finfo, m);
@@ -824,7 +830,7 @@ void be_code_import(bfuncinfo *finfo, bexpdesc *m, bexpdesc *v)
         codeABC(finfo, OP_IMPORT, dst, src, 0);
         m->type = ETREG;
         m->v.idx = dst;
-        be_code_setvar(finfo, v, m);
+        be_code_setvar(finfo, v, m); /* TODO is the register freed? */
     }
 }
 
@@ -846,6 +852,10 @@ void be_code_catch(bfuncinfo *finfo, int base, int ecnt, int vcnt, int *jmp)
     }
 }
 
+/* Emit RAISE opcode */
+/* e1 is the exception code */
+/* e2 is the exception description */
+/* both are materialized to a temp register (if not null) */
 void be_code_raise(bfuncinfo *finfo, bexpdesc *e1, bexpdesc *e2)
 {
     if (e1) {
