@@ -714,6 +714,9 @@ static int exprlist(bparser *parser, bexpdesc *e)
     return n;
 }
 
+/* parse call to method or function */
+/* `e` can be a member (method) or a register */
+/* On return, `e` is ETREG to the result of the call */
 static void call_expr(bparser *parser, bexpdesc *e)
 {
     bexpdesc args;
@@ -727,14 +730,14 @@ static void call_expr(bparser *parser, bexpdesc *e)
     if (ismember) {
         base = be_code_getmethod(finfo, e);
     } else {
-        base = be_code_nextreg(finfo, e);
+        base = be_code_nextreg(finfo, e); /* allocate a new base reg if not at top already */
     }
     scan_next_token(parser); /* skip '(' */
     if (next_type(parser) != OptRBK) {
         argc = exprlist(parser, &args);
     }
     match_token(parser, OptRBK); /* skip ')' */
-    argc += ismember;
+    argc += ismember;   /* if method there is an additional implicit arg */
     be_code_call(finfo, base, argc);
     if (e->type != ETREG) {
         e->type = ETREG;
