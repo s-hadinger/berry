@@ -890,6 +890,10 @@ static void compound_assign(bparser *parser, int op, bexpdesc *l, bexpdesc *r)
     }
 }
 
+/* check if we need to create a new variable with this name */
+/* Returns true if it´s a new local variable to be assigned to */
+/* Globals are not reassigned except if they are builtins */
+/* TODO add warning in strict mode */
 static int check_newvar(bparser *parser, bexpdesc *e)
 {
     if (e->type == ETGLOBAL) {
