@@ -867,7 +867,7 @@ static void suffix_alloc_reg(bparser *parser, bexpdesc *l)
     /* in the suffix expression, if the object is a temporary
      * variable (l->v.ss.tt == ETREG), it needs to be cached. */
     if (suffix && l->v.ss.tt == ETREG) {
-        be_code_allocregs(finfo, 1);
+        be_code_allocregs(finfo, 1); /* TODO check if this works all the time */
     }
 }
 
