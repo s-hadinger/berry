@@ -215,7 +215,7 @@ bbool be_class_newobj(bvm *vm, bclass *c, bvalue *reg, int argc, int mode)
     bvalue init;
     size_t pos = reg - vm->reg;
     binstance *obj = newobject(vm, c);
-    reg = vm->reg + pos - mode; /* the stack may have changed  */
+    reg = vm->reg + pos - mode; /* the stack may have changed, mode=1 when class is instanciated from module #104 */
     var_setinstance(reg, obj);
     var_setinstance(reg + mode, obj);
     /* find constructor */
