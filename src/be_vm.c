@@ -1063,8 +1063,8 @@ newframe: /* a new call frame */
                 ++var, --argc, mode = 1;
                 goto recall;
             case BE_CLASS:
-                if (be_class_newobj(vm, var_toobj(var), var, ++argc, mode)) {
-                    reg = vm->reg + mode;
+                if (be_class_newobj(vm, var_toobj(var), var, ++argc, mode)) {  /* instanciate object and find constructor */
+                    reg = vm->reg + mode;  /* constructor found */
                     mode = 0;
                     var = RA() + 1; /* to next register */
                     goto recall; /* call constructor */
