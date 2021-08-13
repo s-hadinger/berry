@@ -237,6 +237,10 @@ bbool be_class_newobj(bvm *vm, bclass *c, bvalue *reg, int argc, int mode)
     return bfalse;
 }
 
+/* Find instance member by name and copy value to `dst` */
+/* Input: none of `obj`, `name` and `dst` may not be NULL */
+/* Returns the type of the member or BE_NONE if member not found */
+/* TODO need to support synthetic members */
 int be_instance_member(bvm *vm, binstance *obj, bstring *name, bvalue *dst)
 {
     int type;
