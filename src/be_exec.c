@@ -315,7 +315,6 @@ int be_protectedcall(bvm *vm, bvalue *v, int argc)
 #if BE_DEBUG && defined(be_assert)
 /* increase top register and return new top */
 /* Does not expand the stack if there is not enough room, but may corrupt memory */
-/* TODO should we enforce the assertion and raise an exception? */
 bvalue* be_incrtop(bvm *vm)
 {
     bvalue *top = vm->top++;

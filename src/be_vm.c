@@ -187,7 +187,6 @@ static void do_linehook(bvm *vm)
 /* Prepare the stack for the function/method call */
 /* `func` is a pointer to the function/method on the stack, it contains the closure before call and the result after the call */
 /* `nstackˋ is the stack depth used by the function (determined by compiler), we add BE_STACK_FREE_MIN as a safety margin */
-/* `mode` is 0 for a method, 1 for a function */
 static void precall(bvm *vm, bvalue *func, int nstack, int mode)
 {
     bcallframe *cf;
@@ -199,7 +198,7 @@ static void precall(bvm *vm, bvalue *func, int nstack, int mode)
     }
     be_stack_push(vm, &vm->callstack, NULL);  /* push a NULL value on callstack */
     cf = be_stack_top(&vm->callstack);  /* get address of new callframe at top of callstack */
-    cf->func = func - mode;  /* TODO why -1 for function? */
+    cf->func = func - mode;
     cf->top = vm->top;  /* save previous stack top */
     cf->reg = vm->reg;  /* save previous stack base */
     vm->reg = func + 1;  /* new stack base is right after function */
@@ -208,7 +207,6 @@ static void precall(bvm *vm, bvalue *func, int nstack, int mode)
 }
 
 /* Prepare call of closure, setting the instruction pointer (ip) */
-/* mode is 0 for method, 1 for function */
 static void push_closure(bvm *vm, bvalue *func, int nstack, int mode)
 {
     bclosure *cl = var_toobj(func);

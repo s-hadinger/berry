@@ -80,7 +80,6 @@ static int codeABx(bfuncinfo *finfo, bopcode op, int a, int bx)
 
 /* Move value from register b to register a */
 /* Check the previous instruction to compact both instruction as one if possible */
-/* TODO make sure we don´t miss the update of the other register if optimized, add a comparison? */
 /* If b is a constant, add LDCONST or add MOVE otherwise */
 static void code_move(bfuncinfo *finfo, int a, int b)
 {
@@ -370,7 +369,6 @@ static bbool constint(bfuncinfo *finfo, bint i)
 /* Compute variable from an expdesc */
 /* Return constant index, or existing register or fallback to dst */
 /* At exit, If dst is `freereg`, the register is allocated */
-/* TODO member or index change dst, why? */
 static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
     be_assert(e != NULL);
@@ -422,7 +420,6 @@ static int var2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
     return dst;
 }
 
-/* TODO */
 static int exp2reg(bfuncinfo *finfo, bexpdesc *e, int dst)
 {
     int reg = var2reg(finfo, e, dst);
@@ -493,7 +490,6 @@ void be_code_prebinop(bfuncinfo *finfo, int op, bexpdesc *e)
 }
 
 /* Apply binary operator `op` to e1 and e2, result in e1 */
-/* TODO e1 isnguaranteed to be ETREG */
 void be_code_binop(bfuncinfo *finfo, int op, bexpdesc *e1, bexpdesc *e2)
 {
     switch (op) {
@@ -691,7 +687,6 @@ int be_code_getmethod(bfuncinfo *finfo, bexpdesc *e)
 /* Generate a CALL instruction at base register with argc consecutive values */
 /* i.e. arg1 is base+1... */
 /* Important: argc registers are freed upon call, which are supposed to be registers above base */
-/* TODO check that there are no more than `argc` registers above ‘base` on stack */
 void be_code_call(bfuncinfo *finfo, int base, int argc)
 {
     codeABC(finfo, OP_CALL, base, argc, 0);
@@ -778,7 +773,6 @@ static void package_suffix(bfuncinfo *finfo, bexpdesc *c, bexpdesc *k)
     c->v.ss.idx = key;
 }
 
-/* TODO too simple? */
 int be_code_nglobal(bfuncinfo *finfo, bexpdesc *k)
 {
     return exp2anyreg(finfo, k);
@@ -839,7 +833,7 @@ void be_code_import(bfuncinfo *finfo, bexpdesc *m, bexpdesc *v)
         codeABC(finfo, OP_IMPORT, dst, src, 0);
         m->type = ETREG;
         m->v.idx = dst;
-        be_code_setvar(finfo, v, m); /* TODO is the register freed? */
+        be_code_setvar(finfo, v, m);
     }
 }
 

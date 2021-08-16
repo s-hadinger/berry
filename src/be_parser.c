@@ -629,7 +629,7 @@ static void lambda_expr(bparser *parser, bexpdesc *e)
 
 /* Instanciate a builtin type by name */
 /* Allocates a new register for the value, and call empty constructor */
-/* TODO is allocated as LOCAL and must be changed to REG when completed */
+/* Is allocated as LOCAL and must be changed to REG when completed */
 static void new_primtype(bparser *parser, const char *type, bexpdesc *e)
 {
     int idx;
@@ -750,7 +750,6 @@ static void call_expr(bparser *parser, bexpdesc *e)
 
 /* Parse member expression */
 /* Generates an ETMEMBER object that is materialized later into GETMBR, GETMET or SETMBR */
-/* TODO place here accessor by variable (string) instead of string literal */
 static void member_expr(bparser *parser, bexpdesc *e)
 {
     bstring *str;
@@ -867,7 +866,7 @@ static void suffix_alloc_reg(bparser *parser, bexpdesc *l)
     /* in the suffix expression, if the object is a temporary
      * variable (l->v.ss.tt == ETREG), it needs to be cached. */
     if (suffix && l->v.ss.tt == ETREG) {
-        be_code_allocregs(finfo, 1); /* TODO check if this works all the time */
+        be_code_allocregs(finfo, 1);
     }
 }
 
@@ -984,7 +983,7 @@ static void sub_expr(bparser *parser, bexpdesc *e, int prio)
                 res == 1 ? "negative" : "bit-flip");
         }
     } else {
-        suffix_expr(parser, e);  /* parse left part of binop TODO */
+        suffix_expr(parser, e);  /* parse left part of binop */
     }
     op = get_binop(parser);  /* check if binop */
     while (op != OP_NOT_BINARY && prio > binary_op_prio(op)) {  /* is binop applicable */
@@ -995,11 +994,11 @@ static void sub_expr(bparser *parser, bexpdesc *e, int prio)
         init_exp(&e2, ETVOID, 0);
         sub_expr(parser, &e2, binary_op_prio(op));  /* parse right side */
         check_var(parser, &e2);  /* check if valid */
-        be_code_binop(finfo, op, e, &e2); /* encode binary op */ /* TODO should we free some regs here? */
+        be_code_binop(finfo, op, e, &e2); /* encode binary op */
         op = get_binop(parser);  /* is there a following binop? */
     }
     if (prio == ASSIGN_OP_PRIO) {
-        cond_expr(parser, e);  /* TODO */
+        cond_expr(parser, e);
     }
 }
 
