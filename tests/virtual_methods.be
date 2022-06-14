@@ -35,7 +35,8 @@ class T2 : T1
         if (n == 'f1') return / n -> n end
         if (n == 'f2') return /-> 4 end
         if (n == 'a1') return 10 end
-        raise "attribute_error", "undefined attribute '" + str(n) "'"
+        import undefined
+        return undefined
     end
 end
 t2 = T2()
@@ -61,6 +62,8 @@ assert_attribute_error(/-> m.b)
 
 m.member = def(n)
     if n == "b" return 2 end
+    import undefined
+    return undefined
 end
 
 assert(m.b == 2)
