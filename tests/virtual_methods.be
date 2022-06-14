@@ -35,6 +35,7 @@ class T2 : T1
         if (n == 'f1') return / n -> n end
         if (n == 'f2') return /-> 4 end
         if (n == 'a1') return 10 end
+        raise "attribute_error", "undefined attribute '" + str(n) "'"
     end
 end
 t2 = T2()

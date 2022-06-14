@@ -42,8 +42,8 @@ global.global_c = 3
 f = compile("return global_c")
 assert(f() == 3)
 
-#- check that access to non-existent global returns an exception -#
-assert_attribute_error(/-> global.d)
+#- check that access to non-existent global returns nil -#
+assert(global.d == nil)
 
 #- check the glbal list -#
 assert(findinlist(global(), 'global_a') != nil)
