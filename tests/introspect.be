@@ -42,3 +42,19 @@ assert(introspect.name(A) == 'A')
 assert(introspect.name(A.a) == 'a')
 assert(introspect.name(A.b) == 'b')
 assert(introspect.name(A.c) == nil)
+
+# test introspect member accepting an instance with tostring()
+class A var a,b static c=3,d=4 def f() end def init() self.a = 1 self.b = 2 end end
+a=A()
+assert(introspect.get(a, 'a') == 1)
+assert(introspect.get(a, 'b') == 2)
+assert(introspect.get(a, 'c') == 3)
+assert(introspect.get(a, 'd') == 4)
+
+# create an instance converted to a string
+class T var t def init(v) self.t = v end def tostring() return str(self.t) end end
+assert(introspect.get(a, str(T('a'))) == 1)
+assert(introspect.get(a, T('a')) == 1)
+assert(introspect.get(a, T('b')) == 2)
+assert(introspect.get(a, T('c')) == 3)
+assert(introspect.get(a, T('d')) == 4)
